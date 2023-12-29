@@ -65,7 +65,7 @@ public sealed class Display
     {
         while (User32.PeekMessage(out var message, _hWindow, 0u, 0u, _settings.PeekMessageOptions))
         {
-            if (message.Message == (uint) WindowMessage.Quit)
+            if (message.Message is WindowMessage.Quit)
             {
                 return false;
             }

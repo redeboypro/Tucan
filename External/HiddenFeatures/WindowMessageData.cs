@@ -6,7 +6,7 @@ namespace Tucan.External.HiddenFeatures;
 internal struct WindowMessageData
 {
     internal IntPtr HWindow;
-    internal uint Message;
+    internal WindowMessage Message;
     internal IntPtr WParam;
     internal IntPtr LParam;
     internal uint Time;

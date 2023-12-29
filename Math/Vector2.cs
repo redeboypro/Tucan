@@ -2,50 +2,41 @@
 using System.Runtime.Serialization;
 
 namespace Tucan.Math;
-
 using Math = System.Math;
 
-public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
+public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
 {
-    public static readonly Vector3 Zero = new (0);
-    public static readonly Vector3 One = new (1);
+    public static readonly Vector2 Zero = new (0);
+    public static readonly Vector2 One = new (1);
     
-    public static readonly Vector3 Right = new (1, 0, 0);
-    public static readonly Vector3 Up = new (0, 1, 0);
-    public static readonly Vector3 Forward = new (0, 0, 1);
+    public static readonly Vector2 Right = new (1, 0);
+    public static readonly Vector2 Up = new (0, 1);
     
-    public static readonly Vector3 Left = -Right;
-    public static readonly Vector3 Down = -Up;
-    public static readonly Vector3 Backward = -Forward;
+    public static readonly Vector2 Left = -Right;
+    public static readonly Vector2 Down = -Up;
     
     [DataMember]
     public float X;
     
     [DataMember]
     public float Y;
-    
-    [DataMember]
-    public float Z;
 
-    public Vector3(Vector3 vec)
+    public Vector2(Vector2 vec)
     {
         X = vec.X;
         Y = vec.Y;
-        Z = vec.Z;
     }
     
-    public Vector3(float x, float y, float z)
+    public Vector2(float x, float y)
     {
         X = x;
         Y = y;
-        Z = z;
     }
     
-    public Vector3(float scalar)
+    public Vector2(float scalar)
     {
         X = scalar;
         Y = scalar;
-        Z = scalar;
     }
 
     public float Length
@@ -60,24 +51,16 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     {
         get
         {
-            return X * X + Y * Y + Z * Z;
+            return X * X + Y * Y;
         }
     }
 
-    public static float Dot(Vector3 lhs, Vector3 rhs)
+    public static float Dot(Vector2 lhs, Vector2 rhs)
     {
-        return lhs.X * rhs.X + lhs.Y * rhs.Y + lhs.Z * rhs.Z;
+        return lhs.X * rhs.X + lhs.Y * rhs.Y;
     }
-    
-    public static Vector3 Cross(Vector3 lhs, Vector3 rhs)
-    {
-        return new Vector3(
-            lhs.Y * rhs.Z - lhs.Z * rhs.Y,
-            lhs.Z * rhs.X - lhs.X * rhs.Z,
-            lhs.X * rhs.Y - lhs.Y * rhs.X);
-    }
-    
-    public static Vector3 Normalize(Vector3 value)
+
+    public static Vector2 Normalize(Vector2 value)
     {
         var magnitude = value.Length;
 
@@ -89,12 +72,11 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
         return Zero;
     }
     
-    public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+    public static Vector2 Lerp(Vector3 a, Vector3 b, float t)
     {
-        return new Vector3(
+        return new Vector2(
             a.X + (b.X - a.X) * t,
-            a.Y + (b.Y - a.Y) * t,
-            a.Z + (b.Z - a.Z) * t
+            a.Y + (b.Y - a.Y) * t
         );
     }
     
@@ -111,7 +93,6 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     {
         yield return X;
         yield return Y;
-        yield return Z;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -123,7 +104,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     {
         get
         {
-            return 3;
+            return 2;
         }
     }
 
@@ -135,7 +116,6 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
             {
                 0 => X,
                 1 => Y,
-                2 => Z,
                 _ => throw new ArgumentOutOfRangeException(nameof(index))
             };
         }
@@ -149,120 +129,109 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
                 case 1: 
                     Y = value; 
                     break;
-                case 2:
-                    Z = value; 
-                    break;
                 default: 
                     throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
     }
 
-    public static Vector3 operator -(Vector3 vec)
+    public static Vector2 operator -(Vector2 vec)
     {
-        Vector3 negativeVec;
+        Vector2 negativeVec;
         {
             negativeVec.X = -vec.X;
             negativeVec.Y = -vec.Y;
-            negativeVec.Z = -vec.Z;
         }
         return negativeVec;
     }
     
-    public static Vector3 operator +(Vector3 lhs, Vector3 rhs)
+    public static Vector2 operator +(Vector2 lhs, Vector2 rhs)
     {
-        Vector3 resultVec;
+        Vector2 resultVec;
         {
             resultVec.X = lhs.X + rhs.X;
             resultVec.Y = lhs.Y + rhs.Y;
-            resultVec.Z = lhs.Z + rhs.Z;
         }
         return resultVec;
     }
     
-    public static Vector3 operator -(Vector3 lhs, Vector3 rhs)
+    public static Vector2 operator -(Vector2 lhs, Vector2 rhs)
     {
-        Vector3 resultVec;
+        Vector2 resultVec;
         {
             resultVec.X = lhs.X - rhs.X;
             resultVec.Y = lhs.Y - rhs.Y;
-            resultVec.Z = lhs.Z - rhs.Z;
         }
         return resultVec;
     }
     
-    public static Vector3 operator *(Vector3 lhs, Vector3 rhs)
+    public static Vector2 operator *(Vector2 lhs, Vector2 rhs)
     {
-        Vector3 resultVec;
+        Vector2 resultVec;
         {
             resultVec.X = lhs.X * rhs.X;
             resultVec.Y = lhs.Y * rhs.Y;
-            resultVec.Z = lhs.Z * rhs.Z;
         }
         return resultVec;
     }
     
-    public static Vector3 operator *(Vector3 vec, float scalar)
+    public static Vector2 operator *(Vector2 vec, float scalar)
     {
-        Vector3 resultVec;
+        Vector2 resultVec;
         {
             resultVec.X = vec.X * scalar;
             resultVec.Y = vec.Y * scalar;
-            resultVec.Z = vec.Z * scalar;
         }
         return resultVec;
     }
     
-    public static Vector3 operator /(Vector3 lhs, Vector3 rhs)
+    public static Vector2 operator /(Vector2 lhs, Vector2 rhs)
     {
-        Vector3 resultVec;
+        Vector2 resultVec;
         {
             resultVec.X = lhs.X / rhs.X;
             resultVec.Y = lhs.Y / rhs.Y;
-            resultVec.Z = lhs.Z / rhs.Z;
         }
         return resultVec;
     }
     
-    public static Vector3 operator /(Vector3 vec, float scalar)
+    public static Vector2 operator /(Vector2 vec, float scalar)
     {
-        Vector3 resultVec;
+        Vector2 resultVec;
         {
             resultVec.X = vec.X / scalar;
             resultVec.Y = vec.Y / scalar;
-            resultVec.Z = vec.Z / scalar;
         }
         return resultVec;
     }
     
-    public static bool operator ==(Vector3 lhs, Vector3 rhs)
+    public static bool operator ==(Vector2 lhs, Vector2 rhs)
     {
         var deltaX = lhs.X - rhs.X;
         var deltaY = lhs.Y - rhs.Y;
-        var deltaZ = lhs.Z - rhs.Z;
         
-        var sqrMagnitude = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+        var sqrMagnitude = deltaX * deltaX + deltaY * deltaY;
         
         return sqrMagnitude < MathF.KEpsilon * MathF.KEpsilon;
     }
     
-    public static bool operator!=(Vector3 lhs, Vector3 rhs)
+    public static bool operator!=(Vector2 lhs, Vector2 rhs)
     {
         return !(lhs == rhs);
     }
 
-    public bool Equals(Vector3 other)
+    public bool Equals(Vector2 other)
     {
         return this == other;
     }
     
     public override bool Equals(object? obj)
     {
-        return obj is Vector3 other && Equals(other);
+        return obj is Vector2 other && Equals(other);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(X, Y, Z);
+        return HashCode.Combine(X, Y);
     }
 }
