@@ -3,8 +3,8 @@
 namespace Tucan.External.HiddenFeatures;
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct POINT
+internal struct Point
 {
-    public int X;
-    public int Y;
+    internal int X;
+    internal int Y;
 }

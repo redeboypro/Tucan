@@ -1,5 +1,6 @@
 ﻿namespace Tucan.External.OpenGL;
 
+[Flags]
 public enum BufferBit : uint
 {
     Depth = 0x00000100,

@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
-using Tucan.External.HiddenFeatures;
 
-namespace Tucan.External;
+namespace Tucan.External.HiddenFeatures;
 
 internal static class GDI32
 {
@@ -9,11 +8,11 @@ internal static class GDI32
 
     [DllImport(GDI32DLL, SetLastError = true)]
     internal static extern int ChoosePixelFormat(IntPtr hDeviceContext,
-        [In, MarshalAs(UnmanagedType.LPStruct)] PIXELFORMATDESCRIPTOR pixelFormatDescriptor);
+        [In, MarshalAs(UnmanagedType.LPStruct)] PixelFormatDescriptor pixelFormatDescriptor);
 
     [DllImport(GDI32DLL, SetLastError = true)]
     internal static extern int SetPixelFormat(IntPtr hDeviceContext, int iPixelFormat,
-        [In, MarshalAs(UnmanagedType.LPStruct)] PIXELFORMATDESCRIPTOR pixelFormatDescriptor);
+        [In, MarshalAs(UnmanagedType.LPStruct)] PixelFormatDescriptor pixelFormatDescriptor);
 
     [DllImport(GDI32DLL)]
     internal static extern int SwapBuffers(IntPtr hDeviceContext);

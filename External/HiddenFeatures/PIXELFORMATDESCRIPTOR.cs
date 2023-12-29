@@ -3,83 +3,83 @@
 namespace Tucan.External.HiddenFeatures;
 
 [StructLayout(LayoutKind.Explicit)]
-internal class PIXELFORMATDESCRIPTOR
+internal class PixelFormatDescriptor
 {
     [FieldOffset(0)]
-    public ushort nSize;
+    internal ushort Size;
         
     [FieldOffset(2)]
-    public ushort nVersion;
+    internal ushort Version;
         
     [FieldOffset(4)]
-    public uint dwFlags;
+    internal PixelFormatDescriptorFlags Flags;
         
     [FieldOffset(8)]
-    public byte iPixelType;
+    internal PixelFormatDescriptorType PixelType;
         
     [FieldOffset(9)]
-    public byte cColorBits;
+    internal byte ColorBits;
         
     [FieldOffset(10)]
-    public byte cRedBits;
+    internal byte RedBits;
         
     [FieldOffset(11)]
-    public byte cRedShift;
+    internal byte RedShift;
         
     [FieldOffset(12)]
-    public byte cGreenBits;
+    internal byte GreenBits;
         
     [FieldOffset(13)]
-    public byte cGreenShift;
+    internal byte GreenShift;
         
     [FieldOffset(14)]
-    public byte cBlueBits;
+    internal byte BlueBits;
         
     [FieldOffset(15)]
-    public byte cBlueShift;
+    internal byte BlueShift;
         
     [FieldOffset(16)]
-    public byte cAlphaBits;
+    internal byte AlphaBits;
         
     [FieldOffset(17)]
-    public byte cAlphaShift;
+    internal byte AlphaShift;
         
     [FieldOffset(18)]
-    public byte cAccumBits;
+    internal byte AccumBits;
         
     [FieldOffset(19)]
-    public byte cAccumRedBits;
+    internal byte AccumRedBits;
         
     [FieldOffset(20)]
-    public byte cAccumGreenBits;
+    internal byte AccumGreenBits;
         
     [FieldOffset(21)]
-    public byte cAccumBlueBits;
+    internal byte AccumBlueBits;
         
     [FieldOffset(22)]
-    public byte cAccumAlphaBits;
+    internal byte AccumAlphaBits;
         
     [FieldOffset(23)]
-    public byte cDepthBits;
+    internal byte DepthBits;
         
     [FieldOffset(24)]
-    public byte cStencilBits;
+    internal byte StencilBits;
         
     [FieldOffset(25)]
-    public byte cAuxBuffers;
+    internal byte AuxBuffers;
         
     [FieldOffset(26)]
-    public sbyte iLayerType;
+    internal PixelFormatDescriptorPlanes LayerType;
         
     [FieldOffset(27)]
-    public byte bReserved;
+    internal byte Reserved;
         
     [FieldOffset(28)]
-    public uint dwLayerMask;
+    internal uint LayerMask;
         
     [FieldOffset(32)]
-    public uint dwVisibleMask;
+    internal uint VisibleMask;
         
     [FieldOffset(36)]
-    public uint dwDamageMask;
+    internal uint DamageMask;
 }

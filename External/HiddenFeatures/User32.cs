@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
-using Tucan.External.HiddenFeatures;
 
-namespace Tucan.External;
+namespace Tucan.External.HiddenFeatures;
 
 internal static class User32
 {
@@ -37,7 +36,7 @@ internal static class User32
         IntPtr lpParam);
 
     [DllImport(USR32DLL, SetLastError = true, EntryPoint = "RegisterClassEx")]
-    internal static extern ushort RegisterClass([In] ref WNDCLASSEX lpWndClass);
+    internal static extern ushort RegisterClass([In] ref WindowClass lpWindowClass);
     
     [DllImport(USR32DLL, SetLastError = true, CharSet = CharSet.Unicode)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -51,15 +50,15 @@ internal static class User32
     
     [DllImport(USR32DLL)]
     internal static extern bool PeekMessage(
-        out MSG lpMessage,
+        out WindowMessageData lpMessage,
         IntPtr hWindow,
         uint wMessageFilterMin,
         uint wMessageFilterMax,
         PeekMessageOptions wRemoveMessage);
     
     [DllImport(USR32DLL)]
-    internal static extern bool TranslateMessage([In] ref MSG lpMessage);
+    internal static extern bool TranslateMessage([In] ref WindowMessageData lpMessage);
 
     [DllImport(USR32DLL)]
-    internal static extern IntPtr DispatchMessage([In] ref MSG lpMessage); 
+    internal static extern IntPtr DispatchMessage([In] ref WindowMessageData lpMessage); 
 }

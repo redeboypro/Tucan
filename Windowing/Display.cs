@@ -65,7 +65,7 @@ public sealed class Display
     {
         while (User32.PeekMessage(out var message, _hWindow, 0u, 0u, _settings.PeekMessageOptions))
         {
-            if (message.message == (uint) WindowMessage.Quit)
+            if (message.Message == (uint) WindowMessage.Quit)
             {
                 return false;
             }
@@ -116,20 +116,20 @@ public sealed class Display
         CursorType cursorType,
         string className)
     {
-        var windowClassInstance = new WNDCLASSEX
+        var windowClassInstance = new WindowClass
         {
-            cbSize = Marshal.SizeOf(typeof(WNDCLASSEX)),
-            style = (int) windowClassStyle,
-            hbrBackground = (IntPtr) 2,
-            cbClsExtra = 0,
-            cbWndExtra = 0,
-            hInstance = hInstance,
-            hIcon = IntPtr.Zero,
-            hCursor = User32.LoadCursor(IntPtr.Zero, (int) cursorType),
-            lpszMenuName = null!,
-            lpszClassName = className,
-            lpfnWndProc = Marshal.GetFunctionPointerForDelegate(new WndProc(MessageCallbackPtr)),
-            hIconSm = IntPtr.Zero
+            Size = Marshal.SizeOf(typeof(WindowClass)),
+            Style = windowClassStyle,
+            Background = (IntPtr) 2,
+            ClassExtra = 0,
+            WindowExtra = 0,
+            Instance = hInstance,
+            Icon = IntPtr.Zero,
+            Cursor = User32.LoadCursor(IntPtr.Zero, (int) cursorType),
+            MenuName = null!,
+            ClassName = className,
+            MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(new WndProc(MessageCallbackPtr)),
+            SmallIcon = IntPtr.Zero
         };
 
         return User32.RegisterClass(ref windowClassInstance);
@@ -137,42 +137,42 @@ public sealed class Display
 
     private bool SetPixelFormat()
     {
-        var pixelFormat = new PIXELFORMATDESCRIPTOR
+        var pixelFormat = new PixelFormatDescriptor
         {
-            nSize = 40,
-            nVersion = 1,
-            dwFlags = (uint) _settings.PixelFormatDescriptorFlags,
-            iPixelType = (byte) _settings.PixelFormatDescriptorType,
-            cColorBits = 24,
-            cRedBits = 0, cRedShift = 0,
-            cGreenBits = 0, cGreenShift = 0,
-            cBlueBits = 0, cBlueShift = 0,
-            cAlphaBits = 0, cAlphaShift = 0,
-            cAccumBits = 0, 
-            cAccumRedBits = 0, 
-            cAccumGreenBits = 0,
-            cAccumBlueBits = 0, 
-            cAccumAlphaBits = 0,
-            cDepthBits = 24, 
-            cStencilBits = 0,
-            cAuxBuffers = 0,
-            iLayerType = (sbyte) _settings.PixelFormatDescriptorPlanes,
-            bReserved = 0,
-            dwLayerMask = 0,
-            dwVisibleMask = 0,
-            dwDamageMask = 0
+            Size = 40,
+            Version = 1,
+            Flags = _settings.PixelFormatDescriptorFlags,
+            PixelType = _settings.PixelFormatDescriptorType,
+            ColorBits = 24,
+            RedBits = 0, RedShift = 0,
+            GreenBits = 0, GreenShift = 0,
+            BlueBits = 0, BlueShift = 0,
+            AlphaBits = 0, AlphaShift = 0,
+            AccumBits = 0, 
+            AccumRedBits = 0, 
+            AccumGreenBits = 0,
+            AccumBlueBits = 0, 
+            AccumAlphaBits = 0,
+            DepthBits = 24, 
+            StencilBits = 0,
+            AuxBuffers = 0,
+            LayerType = _settings.PixelFormatDescriptorPlanes,
+            Reserved = 0,
+            LayerMask = 0,
+            VisibleMask = 0,
+            DamageMask = 0
         };
         
         var iPixelFormat = GDI32.ChoosePixelFormat(_hDeviceContext, pixelFormat);
         if (iPixelFormat == 0) 
         {
-            pixelFormat.cDepthBits = 32;
+            pixelFormat.DepthBits = 32;
             iPixelFormat = GDI32.ChoosePixelFormat(_hDeviceContext, pixelFormat);
         }
         
         if (iPixelFormat == 0) 
         {
-            pixelFormat.cDepthBits = 16;
+            pixelFormat.DepthBits = 16;
             iPixelFormat = GDI32.ChoosePixelFormat(_hDeviceContext, pixelFormat);
         }
         
