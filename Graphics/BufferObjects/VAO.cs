@@ -14,6 +14,11 @@ public class VAO
         ElementBufferObject = new EBO();
     }
 
+    ~VAO()
+    {
+        Delete();
+    }
+
     public VBO this[uint location]
     {
         get

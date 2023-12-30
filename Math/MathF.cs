@@ -4,9 +4,9 @@ using Math = System.Math;
 
 public static class MathF
 {
-    public const float Loop = 360F;
+    public const float Loop = 360f;
 
-    public const float HalfLoop = Loop * 0.5F;
+    public const float HalfLoop = Loop * 0.5f;
     
     public const float PI = (float) Math.PI;
 
@@ -14,13 +14,13 @@ public static class MathF
 
     public const float NegativeInfinity = Single.NegativeInfinity;
 
-    public const float Deg2Rad = PI * 2F / Loop;
+    public const float Deg2Rad = PI * 2f / Loop;
 
-    public const float Rad2Deg = 1F / Deg2Rad;
+    public const float Rad2Deg = 1f / Deg2Rad;
 
     public const float Epsilon = float.Epsilon;
 
-    public const float KEpsilon = 0.000001F;
+    public const float KEpsilon = 0.000001f;
     
     public static float Sin(float f)
     {
@@ -304,14 +304,14 @@ public static class MathF
     public static float SmoothStep(float from, float to, float t)
     {
         t = Clamp01(t);
-        t = -2.0F * t * t * t + 3.0F * t * t;
+        t = -2.0f * t * t * t + 3.0f * t * t;
 
-        return to * t + from * (1F - t);
+        return to * t + from * (1f - t);
     }
 
     public static float Gamma(float value, float absMax, float gamma)
     {
-        var negative = value < 0F;
+        var negative = value < 0f;
         var absVal = Abs(value);
 
         if (absVal > absMax)
@@ -336,7 +336,7 @@ public static class MathF
 
     public static float PingPong(float t, float length)
     {
-        t = Repeat(t, length * 2F);
+        t = Repeat(t, length * 2f);
         return length - Abs(t - length);
     }
 

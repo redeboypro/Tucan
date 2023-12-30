@@ -3,49 +3,61 @@ using System.Runtime.Serialization;
 
 namespace Tucan.Math;
 
-using Math = System.Math;
-
-public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
+public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
 {
-    public static readonly Vector3 Zero = new(0);
-    public static readonly Vector3 One = new(1);
+    public static readonly Vector4 Zero = new(0);
+    public static readonly Vector4 One = new(1);
 
-    public static readonly Vector3 Right = new(1, 0, 0);
-    public static readonly Vector3 Up = new(0, 1, 0);
-    public static readonly Vector3 Forward = new(0, 0, 1);
-
-    public static readonly Vector3 Left = -Right;
-    public static readonly Vector3 Down = -Up;
-    public static readonly Vector3 Backward = -Forward;
-
-    [DataMember] 
+    [DataMember]
     public float X;
 
-    [DataMember] 
+    [DataMember]
     public float Y;
 
     [DataMember] 
     public float Z;
-
-    public Vector3(Vector3 vec)
+    
+    [DataMember] 
+    public float W;
+    
+    public Vector4(Vector4 vec)
     {
         X = vec.X;
         Y = vec.Y;
         Z = vec.Z;
+        W = vec.W;
     }
 
-    public Vector3(float x, float y, float z)
+    public Vector4(Vector3 vec)
+    {
+        X = vec.X;
+        Y = vec.Y;
+        Z = vec.Z;
+        W = 0;
+    }
+    
+    public Vector4(float x, float y, float z, float w)
     {
         X = x;
         Y = y;
         Z = z;
+        W = w;
     }
 
-    public Vector3(float scalar)
+    public Vector4(float x, float y, float z)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+        W = 0;
+    }
+
+    public Vector4(float scalar)
     {
         X = scalar;
         Y = scalar;
         Z = scalar;
+        W = scalar;
     }
 
     public float Length
@@ -60,24 +72,16 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     {
         get
         {
-            return X * X + Y * Y + Z * Z;
+            return X * X + Y * Y + Z * Z + W * W;
         }
     }
 
-    public static float Dot(Vector3 a, Vector3 b)
+    public static float Dot(Vector4 a, Vector4 b)
     {
-        return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+        return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
     }
 
-    public static Vector3 Cross(Vector3 a, Vector3 b)
-    {
-        return new Vector3(
-            a.Y * b.Z - a.Z * b.Y,
-            a.Z * b.X - a.X * b.Z,
-            a.X * b.Y - a.Y * b.X);
-    }
-
-    public static Vector3 Normalize(Vector3 value)
+    public static Vector4 Normalize(Vector4 value)
     {
         var magnitude = value.Length;
 
@@ -89,22 +93,24 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
         return Zero;
     }
 
-    public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+    public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
     {
-        return new Vector3(
+        return new Vector4(
             a.X + (b.X - a.X) * t,
             a.Y + (b.Y - a.Y) * t,
-            a.Z + (b.Z - a.Z) * t
+            a.Z + (b.Z - a.Z) * t,
+            a.W + (b.W - a.W) * t
         );
     }
 
-    public static float Distance(Vector3 a, Vector3 b)
+    public static float Distance(Vector4 a, Vector4 b)
     {
         var deltaX = a.X - b.X;
         var deltaY = a.Y - b.Y;
         var deltaZ = a.Z - b.Z;
+        var deltaW = a.W - b.W;
 
-        return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+        return MathF.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ + deltaW * deltaW);
     }
 
     public IEnumerator<float> GetEnumerator()
@@ -112,6 +118,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
         yield return X;
         yield return Y;
         yield return Z;
+        yield return W;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -123,7 +130,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     {
         get
         {
-            return 3;
+            return 4;
         }
     }
 
@@ -136,6 +143,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
                 0 => X,
                 1 => Y,
                 2 => Z,
+                3 => W,
                 _ => throw new ArgumentOutOfRangeException(nameof(index))
             };
         }
@@ -152,117 +160,128 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
                 case 2:
                     Z = value;
                     break;
+                case 3:
+                    W = value;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
     }
 
-    public static Vector3 operator -(Vector3 vec)
+    public static Vector4 operator -(Vector4 vec)
     {
-        Vector3 negativeVec;
+        Vector4 negativeVec;
         {
             negativeVec.X = -vec.X;
             negativeVec.Y = -vec.Y;
             negativeVec.Z = -vec.Z;
+            negativeVec.W = -vec.Z;
         }
         return negativeVec;
     }
 
-    public static Vector3 operator +(Vector3 a, Vector3 b)
+    public static Vector4 operator +(Vector4 a, Vector4 b)
     {
-        Vector3 resultVec;
+        Vector4 resultVec;
         {
             resultVec.X = a.X + b.X;
             resultVec.Y = a.Y + b.Y;
             resultVec.Z = a.Z + b.Z;
+            resultVec.W = a.W + b.W;
         }
         return resultVec;
     }
 
-    public static Vector3 operator -(Vector3 a, Vector3 b)
+    public static Vector4 operator -(Vector4 a, Vector4 b)
     {
-        Vector3 resultVec;
+        Vector4 resultVec;
         {
             resultVec.X = a.X - b.X;
             resultVec.Y = a.Y - b.Y;
             resultVec.Z = a.Z - b.Z;
+            resultVec.W = a.W - b.W;
         }
         return resultVec;
     }
 
-    public static Vector3 operator *(Vector3 a, Vector3 b)
+    public static Vector4 operator *(Vector4 a, Vector4 b)
     {
-        Vector3 resultVec;
+        Vector4 resultVec;
         {
             resultVec.X = a.X * b.X;
             resultVec.Y = a.Y * b.Y;
             resultVec.Z = a.Z * b.Z;
+            resultVec.W = a.W * b.W;
         }
         return resultVec;
     }
 
-    public static Vector3 operator *(Vector3 vec, float scalar)
+    public static Vector4 operator *(Vector4 vec, float scalar)
     {
-        Vector3 resultVec;
+        Vector4 resultVec;
         {
             resultVec.X = vec.X * scalar;
             resultVec.Y = vec.Y * scalar;
             resultVec.Z = vec.Z * scalar;
+            resultVec.W = vec.W + scalar;
         }
         return resultVec;
     }
 
-    public static Vector3 operator /(Vector3 a, Vector3 b)
+    public static Vector4 operator /(Vector4 a, Vector4 b)
     {
-        Vector3 resultVec;
+        Vector4 resultVec;
         {
             resultVec.X = a.X / b.X;
             resultVec.Y = a.Y / b.Y;
             resultVec.Z = a.Z / b.Z;
+            resultVec.W = a.W / b.W;
         }
         return resultVec;
     }
 
-    public static Vector3 operator /(Vector3 vec, float scalar)
+    public static Vector4 operator /(Vector4 vec, float scalar)
     {
-        Vector3 resultVec;
+        Vector4 resultVec;
         {
             resultVec.X = vec.X / scalar;
             resultVec.Y = vec.Y / scalar;
             resultVec.Z = vec.Z / scalar;
+            resultVec.W = vec.W / scalar;
         }
         return resultVec;
     }
 
-    public static bool operator ==(Vector3 a, Vector3 b)
+    public static bool operator ==(Vector4 a, Vector4 b)
     {
         var deltaX = a.X - b.X;
         var deltaY = a.Y - b.Y;
         var deltaZ = a.Z - b.Z;
+        var deltaW = a.W - b.W;
 
-        var sqrMagnitude = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ;
+        var sqrMagnitude = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ + deltaW * deltaW;
 
         return sqrMagnitude < MathF.KEpsilon * MathF.KEpsilon;
     }
 
-    public static bool operator !=(Vector3 a, Vector3 b)
+    public static bool operator !=(Vector4 a, Vector4 b)
     {
         return !(a == b);
     }
 
-    public bool Equals(Vector3 other)
+    public bool Equals(Vector4 other)
     {
         return this == other;
     }
 
     public override bool Equals(object? obj)
     {
-        return obj is Vector3 other && Equals(other);
+        return obj is Vector4 other && Equals(other);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(X, Y, Z);
+        return HashCode.Combine(X, Y, Z, W);
     }
 }

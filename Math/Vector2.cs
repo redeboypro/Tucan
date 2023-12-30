@@ -43,7 +43,7 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
     {
         get
         {
-            return (float) Math.Sqrt(LengthSqr);
+            return MathF.Sqrt(LengthSqr);
         }
     }
     
@@ -55,9 +55,9 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
         }
     }
 
-    public static float Dot(Vector2 lhs, Vector2 rhs)
+    public static float Dot(Vector2 a, Vector2 b)
     {
-        return lhs.X * rhs.X + lhs.Y * rhs.Y;
+        return a.X * b.X + a.Y * b.Y;
     }
 
     public static Vector2 Normalize(Vector2 value)
@@ -145,32 +145,32 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
         return negativeVec;
     }
     
-    public static Vector2 operator +(Vector2 lhs, Vector2 rhs)
+    public static Vector2 operator +(Vector2 a, Vector2 b)
     {
         Vector2 resultVec;
         {
-            resultVec.X = lhs.X + rhs.X;
-            resultVec.Y = lhs.Y + rhs.Y;
+            resultVec.X = a.X + b.X;
+            resultVec.Y = a.Y + b.Y;
         }
         return resultVec;
     }
     
-    public static Vector2 operator -(Vector2 lhs, Vector2 rhs)
+    public static Vector2 operator -(Vector2 a, Vector2 b)
     {
         Vector2 resultVec;
         {
-            resultVec.X = lhs.X - rhs.X;
-            resultVec.Y = lhs.Y - rhs.Y;
+            resultVec.X = a.X - b.X;
+            resultVec.Y = a.Y - b.Y;
         }
         return resultVec;
     }
     
-    public static Vector2 operator *(Vector2 lhs, Vector2 rhs)
+    public static Vector2 operator *(Vector2 a, Vector2 b)
     {
         Vector2 resultVec;
         {
-            resultVec.X = lhs.X * rhs.X;
-            resultVec.Y = lhs.Y * rhs.Y;
+            resultVec.X = a.X * b.X;
+            resultVec.Y = a.Y * b.Y;
         }
         return resultVec;
     }
@@ -185,12 +185,12 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
         return resultVec;
     }
     
-    public static Vector2 operator /(Vector2 lhs, Vector2 rhs)
+    public static Vector2 operator /(Vector2 a, Vector2 b)
     {
         Vector2 resultVec;
         {
-            resultVec.X = lhs.X / rhs.X;
-            resultVec.Y = lhs.Y / rhs.Y;
+            resultVec.X = a.X / b.X;
+            resultVec.Y = a.Y / b.Y;
         }
         return resultVec;
     }
@@ -205,19 +205,19 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
         return resultVec;
     }
     
-    public static bool operator ==(Vector2 lhs, Vector2 rhs)
+    public static bool operator ==(Vector2 a, Vector2 b)
     {
-        var deltaX = lhs.X - rhs.X;
-        var deltaY = lhs.Y - rhs.Y;
+        var deltaX = a.X - b.X;
+        var deltaY = a.Y - b.Y;
         
         var sqrMagnitude = deltaX * deltaX + deltaY * deltaY;
         
         return sqrMagnitude < MathF.KEpsilon * MathF.KEpsilon;
     }
     
-    public static bool operator!=(Vector2 lhs, Vector2 rhs)
+    public static bool operator!=(Vector2 a, Vector2 b)
     {
-        return !(lhs == rhs);
+        return !(a == b);
     }
 
     public bool Equals(Vector2 other)

@@ -7,7 +7,7 @@ using Math = System.Math;
 
 public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
 {
-    public static readonly Quaternion Identity = new (0F, 0F, 0F, 1F);
+    public static readonly Quaternion Identity = new (0f, 0f, 0f, 1f);
     
     [DataMember]
     public float X;
@@ -61,34 +61,9 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
         }
     }
 
-    public Vector3 Xyz
+    public static float Dot(Quaternion a, Quaternion b)
     {
-        get
-        {
-            Vector3 xyz;
-            {
-                xyz.X = X;
-                xyz.Y = Y;
-                xyz.Z = Z;
-            }
-            return xyz;
-        }
-        set
-        {
-            X = value.X;
-            Y = value.Y;
-            Z = value.Z;
-        }
-    }
-    
-    private static bool IsEqualUsingDot(float dot)
-    {
-        return dot > 1.0f - MathF.KEpsilon;
-    }
-
-    public static float Dot(Quaternion lhs, Quaternion rhs)
-    {
-        return lhs.X * rhs.X + lhs.Y * rhs.Y + lhs.Z * rhs.Z + lhs.W * rhs.W;
+        return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
     }
 
     public static Quaternion Normalize(Quaternion value)
@@ -102,66 +77,42 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
                 value.Z / magnitude,
                 value.W / magnitude);
     }
-    
-    public static Quaternion Slerp(Quaternion q1, Quaternion q2, float blend)
+
+    public static Quaternion Slerp(Quaternion a, Quaternion b, float t)
     {
-        if (q1.LengthSqr == 0.0f)
-        {
-            return q2.LengthSqr == 0.0f ? Identity : q2;
-        }
+        var cosOmega = Dot(a, b);
+        var absCosOmega = MathF.Abs(cosOmega);
 
-        if (q2.LengthSqr == 0.0f)
-        {
-            return q1;
-        }
-
-        var cosHalfAngle = q1.W * q2.W + Vector3.Dot(q1.Xyz, q2.Xyz);
-
-        switch (cosHalfAngle)
-        {
-            case >= 1.0f:
-            case <= -1.0f:
-                return q1;
-            case < 0.0f:
-                q2.Xyz = -q2.Xyz;
-                q2.W = -q2.W;
-                cosHalfAngle = -cosHalfAngle;
-                break;
-        }
-
-        float blendA;
-        float blendB;
+        float scale0;
+        float scale1;
         
-        if (cosHalfAngle < 0.99f)
+        if (1.0f - absCosOmega > 1E-6f) 
         {
-            var halfAngle = MathF.Acos(cosHalfAngle);
-            var sinHalfAngle = MathF.Sin(halfAngle);
+            var sinSqr = 1.0f - absCosOmega * absCosOmega;
+            var sinOmega = 1.0f / MathF.Sqrt(sinSqr);
             
-            var oneOverSinHalfAngle = 1.0f / sinHalfAngle;
+            var omega = MathF.Atan2(sinSqr * sinOmega, absCosOmega);
             
-            blendA = MathF.Sin(halfAngle * (1.0f - blend)) * oneOverSinHalfAngle;
-            blendB = MathF.Sin(halfAngle * blend) * oneOverSinHalfAngle;
-        }
-        else
+            scale0 = MathF.Sin((1.0f - t) * omega) * sinOmega;
+            scale1 = MathF.Sin(t * omega) * sinOmega;
+        } 
+        else 
         {
-            blendA = 1.0f - blend;
-            blendB = blend;
+            scale0 = 1.0f - t;
+            scale1 = t;
         }
+        scale1 = cosOmega >= 0.0f ? scale1 : -scale1;
 
-        var result = new Quaternion(q1.Xyz * blendA + q2.Xyz * blendB, q1.W * blendA + q2.W * blendB);
-        
-        return result.LengthSqr > 0.0f ? Normalize(result) : Identity;
+        Quaternion resultQuat;
+        {
+            resultQuat.X = scale0 * a.X + scale1 * b.X;
+            resultQuat.Y = scale0 * a.Y + scale1 * b.Z;
+            resultQuat.Z = scale0 * a.Z + scale1 * b.Z;
+            resultQuat.W = scale0 * a.W + scale1 * b.W;
+        }
+        return resultQuat;
     }
-    
-    public static float Distance(Vector3 a, Vector3 b)
-    {
-        var deltaX = a.X - b.X;
-        var deltaY = a.Y - b.Y;
-        var deltaZ = a.Z - b.Z;
-        
-        return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-    }
-    
+
     public IEnumerator<float> GetEnumerator()
     {
         yield return X;
@@ -218,20 +169,23 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
         }
     }
 
-    public static Quaternion operator*(Quaternion lhs, Quaternion rhs)
+    public static Quaternion operator*(Quaternion a, Quaternion b)
     {
-        return new Quaternion(
-            lhs.W * rhs.X + lhs.X * rhs.W + lhs.Y * rhs.Z - lhs.Z * rhs.Y,
-            lhs.W * rhs.Y + lhs.Y * rhs.W + lhs.Z * rhs.X - lhs.X * rhs.Z,
-            lhs.W * rhs.Z + lhs.Z * rhs.W + lhs.X * rhs.Y - lhs.Y * rhs.X,
-            lhs.W * rhs.W - lhs.X * rhs.X - lhs.Y * rhs.Y - lhs.Z * rhs.Z);
+        Quaternion resultQuat;
+        {
+            resultQuat.X = a.W * b.X + a.X * b.W + a.Y * b.Z - a.Z * b.Y;
+            resultQuat.Y = a.W * b.Y + a.Y * b.W + a.Z * b.X - a.X * b.Z;
+            resultQuat.Z = a.W * b.Z + a.Z * b.W + a.X * b.Y - a.Y * b.X;
+            resultQuat.W = a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z;
+        }
+        return resultQuat;
     }
     
     public static Vector3 operator*(Quaternion rotation, Vector3 point)
     {
-        var x = rotation.X * 2F;
-        var y = rotation.Y * 2F;
-        var z = rotation.Z * 2F;
+        var x = rotation.X * 2f;
+        var y = rotation.Y * 2f;
+        var z = rotation.Z * 2f;
         
         var xx = rotation.X * x;
         var yy = rotation.Y * y;
@@ -245,23 +199,23 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
         var wy = rotation.W * y;
         var wz = rotation.W * z;
 
-        Vector3 res;
+        Vector3 resultQuat;
         {
-            res.X = (1F - (yy + zz)) * point.X + (xy - wz) * point.Y + (xz + wy) * point.Z;
-            res.Y = (xy + wz) * point.X + (1F - (xx + zz)) * point.Y + (yz - wx) * point.Z;
-            res.Z = (xz - wy) * point.X + (yz + wx) * point.Y + (1F - (xx + yy)) * point.Z;
+            resultQuat.X = (1f - (yy + zz)) * point.X + (xy - wz) * point.Y + (xz + wy) * point.Z;
+            resultQuat.Y = (xy + wz) * point.X + (1f - (xx + zz)) * point.Y + (yz - wx) * point.Z;
+            resultQuat.Z = (xz - wy) * point.X + (yz + wx) * point.Y + (1f - (xx + yy)) * point.Z;
         }
-        return res;
+        return resultQuat;
     }
     
-    public static bool operator ==(Quaternion lhs, Quaternion rhs)
+    public static bool operator ==(Quaternion a, Quaternion b)
     {
-        return IsEqualUsingDot(Dot(lhs, rhs));
+        return IsEqualUsingDot(Dot(a, b));
     }
     
-    public static bool operator!=(Quaternion lhs, Quaternion rhs)
+    public static bool operator!=(Quaternion a, Quaternion b)
     {
-        return !(lhs == rhs);
+        return !(a == b);
     }
 
     public bool Equals(Quaternion other)
@@ -277,5 +231,10 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
     public override int GetHashCode()
     {
         return HashCode.Combine(X, Y, Z, W);
+    }
+    
+    private static bool IsEqualUsingDot(float dot)
+    {
+        return dot > 1.0f - MathF.KEpsilon;
     }
 }
