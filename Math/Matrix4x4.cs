@@ -11,16 +11,9 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         new Vector4(0, 0, 1, 0), 
         new Vector4(0, 0, 0, 1));
     
-    [DataMember]
     public Vector4 Row0;
-    
-    [DataMember]
     public Vector4 Row1;
-    
-    [DataMember]
     public Vector4 Row2;
-    
-    [DataMember]
     public Vector4 Row3;
     
     private Matrix4x4(Vector4 row0, Vector4 row1, Vector4 row2, Vector4 row3)

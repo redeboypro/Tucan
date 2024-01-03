@@ -9,16 +9,9 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
 {
     public static readonly Quaternion Identity = new (0f, 0f, 0f, 1f);
     
-    [DataMember]
     public float X;
-    
-    [DataMember]
     public float Y;
-    
-    [DataMember]
     public float Z;
-    
-    [DataMember]
     public float W;
     
     public Quaternion(Vector3 v, float w)

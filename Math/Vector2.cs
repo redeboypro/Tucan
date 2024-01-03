@@ -15,10 +15,7 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
     public static readonly Vector2 Left = -Right;
     public static readonly Vector2 Down = -Up;
     
-    [DataMember]
     public float X;
-    
-    [DataMember]
     public float Y;
 
     public Vector2(Vector2 vec)
@@ -55,40 +52,6 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
         }
     }
 
-    public static float Dot(Vector2 a, Vector2 b)
-    {
-        return a.X * b.X + a.Y * b.Y;
-    }
-
-    public static Vector2 Normalize(Vector2 value)
-    {
-        var magnitude = value.Length;
-
-        if (magnitude > MathF.KEpsilon)
-        {
-            return value / magnitude;
-        }
-
-        return Zero;
-    }
-    
-    public static Vector2 Lerp(Vector3 a, Vector3 b, float t)
-    {
-        return new Vector2(
-            a.X + (b.X - a.X) * t,
-            a.Y + (b.Y - a.Y) * t
-        );
-    }
-    
-    public static float Distance(Vector3 a, Vector3 b)
-    {
-        var deltaX = a.X - b.X;
-        var deltaY = a.Y - b.Y;
-        var deltaZ = a.Z - b.Z;
-        
-        return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-    }
-    
     public IEnumerator<float> GetEnumerator()
     {
         yield return X;
@@ -133,6 +96,40 @@ public struct Vector2 : IReadOnlyList<float>, IEquatable<Vector2>
                     throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+    }
+    
+    public static float Dot(Vector2 a, Vector2 b)
+    {
+        return a.X * b.X + a.Y * b.Y;
+    }
+
+    public static Vector2 Normalize(Vector2 value)
+    {
+        var magnitude = value.Length;
+
+        if (magnitude > MathF.KEpsilon)
+        {
+            return value / magnitude;
+        }
+
+        return Zero;
+    }
+    
+    public static Vector2 Lerp(Vector3 a, Vector3 b, float t)
+    {
+        return new Vector2(
+            a.X + (b.X - a.X) * t,
+            a.Y + (b.Y - a.Y) * t
+        );
+    }
+    
+    public static float Distance(Vector3 a, Vector3 b)
+    {
+        var deltaX = a.X - b.X;
+        var deltaY = a.Y - b.Y;
+        var deltaZ = a.Z - b.Z;
+        
+        return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
     }
 
     public static Vector2 operator -(Vector2 vec)

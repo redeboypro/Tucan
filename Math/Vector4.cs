@@ -7,17 +7,10 @@ public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
 {
     public static readonly Vector4 Zero = new(0);
     public static readonly Vector4 One = new(1);
-
-    [DataMember]
-    public float X;
-
-    [DataMember]
-    public float Y;
-
-    [DataMember] 
-    public float Z;
     
-    [DataMember] 
+    public float X;
+    public float Y;
+    public float Z;
     public float W;
     
     public Vector4(Vector4 vec)
@@ -76,43 +69,6 @@ public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
         }
     }
 
-    public static float Dot(Vector4 a, Vector4 b)
-    {
-        return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
-    }
-
-    public static Vector4 Normalize(Vector4 value)
-    {
-        var magnitude = value.Length;
-
-        if (magnitude > MathF.KEpsilon)
-        {
-            return value / magnitude;
-        }
-
-        return Zero;
-    }
-
-    public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
-    {
-        return new Vector4(
-            a.X + (b.X - a.X) * t,
-            a.Y + (b.Y - a.Y) * t,
-            a.Z + (b.Z - a.Z) * t,
-            a.W + (b.W - a.W) * t
-        );
-    }
-
-    public static float Distance(Vector4 a, Vector4 b)
-    {
-        var deltaX = a.X - b.X;
-        var deltaY = a.Y - b.Y;
-        var deltaZ = a.Z - b.Z;
-        var deltaW = a.W - b.W;
-
-        return MathF.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ + deltaW * deltaW);
-    }
-
     public IEnumerator<float> GetEnumerator()
     {
         yield return X;
@@ -167,6 +123,43 @@ public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
                     throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+    }
+    
+    public static float Dot(Vector4 a, Vector4 b)
+    {
+        return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
+    }
+
+    public static Vector4 Normalize(Vector4 value)
+    {
+        var magnitude = value.Length;
+
+        if (magnitude > MathF.KEpsilon)
+        {
+            return value / magnitude;
+        }
+
+        return Zero;
+    }
+
+    public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
+    {
+        return new Vector4(
+            a.X + (b.X - a.X) * t,
+            a.Y + (b.Y - a.Y) * t,
+            a.Z + (b.Z - a.Z) * t,
+            a.W + (b.W - a.W) * t
+        );
+    }
+
+    public static float Distance(Vector4 a, Vector4 b)
+    {
+        var deltaX = a.X - b.X;
+        var deltaY = a.Y - b.Y;
+        var deltaZ = a.Z - b.Z;
+        var deltaW = a.W - b.W;
+
+        return MathF.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ + deltaW * deltaW);
     }
 
     public static Vector4 operator -(Vector4 vec)

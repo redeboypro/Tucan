@@ -17,14 +17,9 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     public static readonly Vector3 Left = -Right;
     public static readonly Vector3 Down = -Up;
     public static readonly Vector3 Backward = -Forward;
-
-    [DataMember] 
+    
     public float X;
-
-    [DataMember] 
     public float Y;
-
-    [DataMember] 
     public float Z;
 
     public Vector3(Vector3 vec)
@@ -63,50 +58,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
             return X * X + Y * Y + Z * Z;
         }
     }
-
-    public static float Dot(Vector3 a, Vector3 b)
-    {
-        return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
-    }
-
-    public static Vector3 Cross(Vector3 a, Vector3 b)
-    {
-        return new Vector3(
-            a.Y * b.Z - a.Z * b.Y,
-            a.Z * b.X - a.X * b.Z,
-            a.X * b.Y - a.Y * b.X);
-    }
-
-    public static Vector3 Normalize(Vector3 value)
-    {
-        var magnitude = value.Length;
-
-        if (magnitude > MathF.KEpsilon)
-        {
-            return value / magnitude;
-        }
-
-        return Zero;
-    }
-
-    public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
-    {
-        return new Vector3(
-            a.X + (b.X - a.X) * t,
-            a.Y + (b.Y - a.Y) * t,
-            a.Z + (b.Z - a.Z) * t
-        );
-    }
-
-    public static float Distance(Vector3 a, Vector3 b)
-    {
-        var deltaX = a.X - b.X;
-        var deltaY = a.Y - b.Y;
-        var deltaZ = a.Z - b.Z;
-
-        return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-    }
-
+    
     public IEnumerator<float> GetEnumerator()
     {
         yield return X;
@@ -157,6 +109,50 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
             }
         }
     }
+    
+    public static float Dot(Vector3 a, Vector3 b)
+    {
+        return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+    }
+
+    public static Vector3 Cross(Vector3 a, Vector3 b)
+    {
+        return new Vector3(
+            a.Y * b.Z - a.Z * b.Y,
+            a.Z * b.X - a.X * b.Z,
+            a.X * b.Y - a.Y * b.X);
+    }
+
+    public static Vector3 Normalize(Vector3 value)
+    {
+        var magnitude = value.Length;
+
+        if (magnitude > MathF.KEpsilon)
+        {
+            return value / magnitude;
+        }
+
+        return Zero;
+    }
+
+    public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+    {
+        return new Vector3(
+            a.X + (b.X - a.X) * t,
+            a.Y + (b.Y - a.Y) * t,
+            a.Z + (b.Z - a.Z) * t
+        );
+    }
+
+    public static float Distance(Vector3 a, Vector3 b)
+    {
+        var deltaX = a.X - b.X;
+        var deltaY = a.Y - b.Y;
+        var deltaZ = a.Z - b.Z;
+
+        return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+    }
+
 
     public static Vector3 operator -(Vector3 vec)
     {
