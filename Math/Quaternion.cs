@@ -60,57 +60,21 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
             return Dot(this, this);
         }
     }
-
-    public static float Dot(Quaternion a, Quaternion b)
+    
+    public Vector3 ToEulerAngles()
     {
-        return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
-    }
-
-    public static Quaternion Normalize(Quaternion value)
-    {
-        var magnitude = value.Length;
-
-        return magnitude < MathF.Epsilon ? Identity : 
-            new Quaternion(
-                value.X / magnitude,
-                value.Y / magnitude,
-                value.Z / magnitude,
-                value.W / magnitude);
-    }
-
-    public static Quaternion Slerp(Quaternion a, Quaternion b, float t)
-    {
-        var cosOmega = Dot(a, b);
-        var absCosOmega = MathF.Abs(cosOmega);
-
-        float scale0;
-        float scale1;
+        var sinRCosP = 2.0f * (W * X + Y * Z);
+        var cosRCosP = 1.0f - 2.0f * (X * X + Y * Y);
+        var roll = MathF.Atan2(sinRCosP, cosRCosP);
         
-        if (1.0f - absCosOmega > 1E-6f) 
-        {
-            var sinSqr = 1.0f - absCosOmega * absCosOmega;
-            var sinOmega = 1.0f / MathF.Sqrt(sinSqr);
-            
-            var omega = MathF.Atan2(sinSqr * sinOmega, absCosOmega);
-            
-            scale0 = MathF.Sin((1.0f - t) * omega) * sinOmega;
-            scale1 = MathF.Sin(t * omega) * sinOmega;
-        } 
-        else 
-        {
-            scale0 = 1.0f - t;
-            scale1 = t;
-        }
-        scale1 = cosOmega >= 0.0f ? scale1 : -scale1;
+        var sinP = 2.0f * (W * Y - Z * X);
+        var pitch = MathF.Abs(sinP) >= 1 ? MathF.CopySign(MathF.PI / 2, sinP) : MathF.Asin(sinP);
+        
+        var sinYCosP = 2.0f * (W * Z + X * Y);
+        var cosYCosP = 1.0f - 2.0f * (Y * Y + Z * Z);
+        var yaw = MathF.Atan2(sinYCosP, cosYCosP);
 
-        Quaternion resultQuat;
-        {
-            resultQuat.X = scale0 * a.X + scale1 * b.X;
-            resultQuat.Y = scale0 * a.Y + scale1 * b.Z;
-            resultQuat.Z = scale0 * a.Z + scale1 * b.Z;
-            resultQuat.W = scale0 * a.W + scale1 * b.W;
-        }
-        return resultQuat;
+        return new Vector3(pitch, yaw, roll);
     }
 
     public IEnumerator<float> GetEnumerator()
@@ -168,6 +132,75 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
             }
         }
     }
+    
+    public static float Dot(Quaternion a, Quaternion b)
+    {
+        return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
+    }
+
+    public static Quaternion Normalize(Quaternion value)
+    {
+        var magnitude = value.Length;
+
+        return magnitude < MathF.Epsilon ? Identity : 
+            new Quaternion(
+                value.X / magnitude,
+                value.Y / magnitude,
+                value.Z / magnitude,
+                value.W / magnitude);
+    }
+
+    public static Quaternion Slerp(Quaternion a, Quaternion b, float t)
+    {
+        var cosOmega = Dot(a, b);
+        var absCosOmega = MathF.Abs(cosOmega);
+
+        float scale0;
+        float scale1;
+        
+        if (1.0f - absCosOmega > 1E-6f) 
+        {
+            var sinSqr = 1.0f - absCosOmega * absCosOmega;
+            var sinOmega = 1.0f / MathF.Sqrt(sinSqr);
+            
+            var omega = MathF.Atan2(sinSqr * sinOmega, absCosOmega);
+            
+            scale0 = MathF.Sin((1.0f - t) * omega) * sinOmega;
+            scale1 = MathF.Sin(t * omega) * sinOmega;
+        } 
+        else 
+        {
+            scale0 = 1.0f - t;
+            scale1 = t;
+        }
+        scale1 = cosOmega >= 0.0f ? scale1 : -scale1;
+
+        Quaternion resultQuat;
+        {
+            resultQuat.X = scale0 * a.X + scale1 * b.X;
+            resultQuat.Y = scale0 * a.Y + scale1 * b.Z;
+            resultQuat.Z = scale0 * a.Z + scale1 * b.Z;
+            resultQuat.W = scale0 * a.W + scale1 * b.W;
+        }
+        return resultQuat;
+    }
+    
+    public static Quaternion FromEulerAngles(float pitch, float yaw, float roll)
+    {
+        var cy = MathF.Cos(yaw * 0.5f);
+        var sy = MathF.Sin(yaw * 0.5f);
+        var cp = MathF.Cos(pitch * 0.5f);
+        var sp = MathF.Sin(pitch * 0.5f);
+        var cr = MathF.Cos(roll * 0.5f);
+        var sr = MathF.Sin(roll * 0.5f);
+
+        var w = cr * cp * cy + sr * sp * sy;
+        var x = sr * cp * cy - cr * sp * sy;
+        var y = cr * sp * cy + sr * cp * sy;
+        var z = cr * cp * sy - sr * sp * cy;
+
+        return new Quaternion(x, y, z, w);
+    }
 
     public static Quaternion operator*(Quaternion a, Quaternion b)
     {
@@ -210,7 +243,7 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
     
     public static bool operator ==(Quaternion a, Quaternion b)
     {
-        return IsEqualUsingDot(Dot(a, b));
+        return DotEqual(Dot(a, b));
     }
     
     public static bool operator!=(Quaternion a, Quaternion b)
@@ -233,7 +266,7 @@ public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
         return HashCode.Combine(X, Y, Z, W);
     }
     
-    private static bool IsEqualUsingDot(float dot)
+    private static bool DotEqual(float dot)
     {
         return dot > 1.0f - MathF.KEpsilon;
     }

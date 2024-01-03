@@ -55,7 +55,11 @@ public class VAO
         GL.BindVertexArray(0);
     }
         
-    public void CreateVertexBufferObject<T>(uint attributeLocation, int dim, T[] data, PointerType pointerType = PointerType.Float) where T : struct
+    public void CreateVertexBufferObject<T>(
+        uint attributeLocation,
+        int dimension,
+        T[] data,
+        PointerType pointerType = PointerType.Float) where T : struct
     {
         if (_vertexBufferObjects.ContainsKey(attributeLocation))
         {
@@ -64,7 +68,7 @@ public class VAO
         
         GL.BindVertexArray(_id);
         {
-            var vbo = new VBO(attributeLocation, dim, pointerType);
+            var vbo = new VBO(attributeLocation, dimension, pointerType);
             vbo.Create(data);
             _vertexBufferObjects.Add(attributeLocation, vbo);
         }

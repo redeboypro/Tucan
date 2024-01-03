@@ -11,7 +11,11 @@ public struct VBO : IBO
     private readonly PointerType _attribPointerType;
     private uint _id;
 
-    public VBO(uint attributeLocation, int dimension, PointerType pointerType = PointerType.Float, BufferUsage bufferUsage = BufferUsage.DynamicDraw)
+    public VBO(
+        uint attributeLocation,
+        int dimension,
+        PointerType pointerType = PointerType.Float,
+        BufferUsage bufferUsage = BufferUsage.DynamicDraw)
     {
         AttributeLocation = attributeLocation;
         Dimension = dimension;
