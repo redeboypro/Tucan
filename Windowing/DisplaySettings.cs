@@ -4,7 +4,7 @@ namespace Tucan.Windowing;
 
 public struct DisplaySettings
 {
-    public static readonly DisplaySettings Default = new DisplaySettings()
+    public static readonly DisplaySettings Default = new ()
     {
         Title = "Sample Window",
         Width = 800, Height = 600,
@@ -15,7 +15,7 @@ public struct DisplaySettings
         PeekMessageOptions = PeekMessageOptions.Remove,
         PixelFormatDescriptorFlags = PixelFormatDescriptorFlags.DrawToWindow | PixelFormatDescriptorFlags.SupportOpenGL | PixelFormatDescriptorFlags.DoubleBuffer,
         PixelFormatDescriptorType = PixelFormatDescriptorType.Rgba,
-        PixelFormatDescriptorPlanes = PixelFormatDescriptorPlanes.MainPlane
+        PixelFormatDescriptorPlane = PixelFormatDescriptorPlanes.MainPlane
     };
     
     public string Title;
@@ -27,5 +27,5 @@ public struct DisplaySettings
     public PeekMessageOptions PeekMessageOptions;
     public PixelFormatDescriptorFlags PixelFormatDescriptorFlags;
     public PixelFormatDescriptorType PixelFormatDescriptorType;
-    public PixelFormatDescriptorPlanes PixelFormatDescriptorPlanes;
+    public PixelFormatDescriptorPlanes PixelFormatDescriptorPlane;
 }

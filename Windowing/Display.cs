@@ -89,9 +89,8 @@ public sealed class Display
         GDI32.SwapBuffers(_hDeviceContext);
     }
 
-    ~Display()
+    public void Release()
     {
-        Destroy();
         User32.UnregisterClass(_settings.ClassName, _hInstance);
         
         if (_hRenderContext != IntPtr.Zero) 
@@ -108,6 +107,12 @@ public sealed class Display
         
         User32.ReleaseDC(_hWindow, _hDeviceContext);
         _hDeviceContext = IntPtr.Zero;
+    }
+
+    ~Display()
+    {
+        Destroy();
+        Release();
     }
     
     private ushort RegisterDisplayClass(
@@ -156,7 +161,7 @@ public sealed class Display
             DepthBits = 24, 
             StencilBits = 0,
             AuxBuffers = 0,
-            LayerType = _settings.PixelFormatDescriptorPlanes,
+            LayerType = _settings.PixelFormatDescriptorPlane,
             Reserved = 0,
             LayerMask = 0,
             VisibleMask = 0,

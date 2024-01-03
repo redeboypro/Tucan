@@ -72,7 +72,7 @@ public static class GL
     [Obsolete(DeprecatedFeatureUsageMessage)]
     [DllImport(GL32Dll, EntryPoint = "glEnd")]
     public static extern void End();
-    
+
     [DllImport(GL32Dll, EntryPoint = "glGenVertexArrays")]
     public static extern void GenVertexArrays(int n, [Out] uint[] arrays);
     
@@ -84,18 +84,21 @@ public static class GL
     }
     
     [DllImport(GL32Dll, EntryPoint = "glDeleteVertexArrays")]
-    public static extern void DeleteVertexArrays(int n, uint[] arrays);
+    public static extern void DeleteVertexArrays(int n, [In] uint[] arrays);
 
     public static void DeleteVertexArray(uint array)
     {
-        DeleteVertexArrays(1, new [] { array });
+        DeleteVertexArrays(1, new []
+        {
+            array
+        });
     }
     
     [DllImport(GL32Dll, EntryPoint = "glBindVertexArray")]
     public static extern void BindVertexArray(uint array);
 
     [DllImport(GL32Dll, EntryPoint = "glGenBuffers")]
-    public static extern void GenBuffers(int n, uint[] buffers);
+    public static extern void GenBuffers(int n, [Out] uint[] buffers);
 
     public static void GenBuffer(out uint buffer)
     {
@@ -105,11 +108,14 @@ public static class GL
     }
     
     [DllImport(GL32Dll, EntryPoint = "glDeleteBuffers")]
-    public static extern void DeleteBuffers(int n, uint[] buffers);
+    public static extern void DeleteBuffers(int n, [In] uint[] buffers);
 
     public static void DeleteBuffer(uint buffer)
     {
-        DeleteBuffers(1, new [] { buffer });
+        DeleteBuffers(1, new []
+        {
+            buffer
+        });
     }
     
     [DllImport(GL32Dll, EntryPoint = "glBindBuffer")]
@@ -150,6 +156,15 @@ public static class GL
             handle.Free();
         }
     }
+    
+    [DllImport(GL32Dll, EntryPoint = "glEnableVertexAttribArray")]
+    public static extern void EnableVertexAttribArray(uint index);
+    
+    [DllImport(GL32Dll, EntryPoint = "glDisableVertexAttribArray")]
+    public static extern void DisableVertexAttribArray(uint index);
+    
+    [DllImport(GL32Dll, EntryPoint = "glCullFace")]
+    public static extern void CullFace(CullFaceMode cullFaceMode);
     
     [DllImport(GL32Dll, EntryPoint = "glVertexAttribPointer" , SetLastError = true, ThrowOnUnmappableChar = true)]
     public static extern void VertexAttribPointer(uint index, int size, PointerType type, bool normalized, int stride, IntPtr pointer);
@@ -226,6 +241,92 @@ public static class GL
     [DllImport(GL32Dll, EntryPoint = "glGetShaderInfoLog")]
     public static extern void GetShaderInfoLog(uint shader, int bufSize, out int length, [Out] StringBuilder infoLog);
 
+    [DllImport(GL32Dll, EntryPoint = "glHint")]
+    public static extern void Hint(HintTarget target, HintMode mode);
+
+    [DllImport(GL32Dll, EntryPoint = "glGenTextures")]
+    public static extern void GenTextures(int n, [Out] uint[] textures);
+    
+    public static void GenTexture(out uint texture)
+    {
+        var textures = new uint[1];
+        GenTextures(1, textures);
+        texture = textures[0];
+    }
+    
+    [DllImport(GL32Dll, EntryPoint = "glBindTexture")]
+    public static extern void BindTexture(TextureTarget target, uint texture);
+    
+    [DllImport(GL32Dll, EntryPoint = "glTexParameteri")]
+    public static extern void TexParameter(TextureTarget target, TextureParameter parameter, TextureFilterMode param);
+    
+    [DllImport(GL32Dll, EntryPoint = "glTexParameteri")]
+    public static extern void TexParameter(TextureTarget target, TextureParameter parameter, TextureWrapMode param);
+    
+    [DllImport(GL32Dll, EntryPoint = "glTexImage2D")]
+    public static extern void TexImage2D(
+        TextureTarget target,
+        int level,
+        InternalPixelFormat internalformat,
+        int width, int height,
+        int border,
+        PixelFormat format,
+        PointerType type,
+        IntPtr data);
+    
+    public static void TexImage2D(
+        TextureTarget target,
+        int level,
+        InternalPixelFormat internalformat,
+        int width, int height,
+        int border,
+        PixelFormat format,
+        PointerType type,
+        byte[] data)
+    {
+        var pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+        try
+        {
+            var pointer = pinnedArray.AddrOfPinnedObject();
+            TexImage2D(target, level, internalformat, width, height, border, format, type, pointer);
+        }
+        finally
+        {
+            pinnedArray.Free();
+        }
+    }
+    
+    [DllImport(GL32Dll, EntryPoint = "glTexSubImage2D")]
+    public static extern void TexSubImage2D(
+        TextureTarget target, 
+        int level, 
+        int xOffset, int yOffset,
+        int width, int height,
+        PixelFormat format,
+        PointerType type,
+        IntPtr data);
+
+    public static void TexSubImage2D(
+        TextureTarget target,
+        int level, 
+        int xOffset, int yOffset,
+        int width, int height,
+        PixelFormat format,
+        PointerType type,
+        byte[] data)
+    {
+        var pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+        try
+        {
+            var pointer = pinnedArray.AddrOfPinnedObject();
+            TexSubImage2D(target, level, xOffset, yOffset, width, height, format, type, pointer);
+        }
+        finally
+        {
+            pinnedArray.Free();
+        }
+    }
+    
     [DllImport(GL32Dll, EntryPoint = "glGetError")]
     public static extern int GetError();
 }

@@ -2,7 +2,7 @@
 
 namespace Tucan.Graphics.BufferObjects;
 
-public class VAO
+public sealed class VAO
 {
     private readonly Dictionary<uint, VBO> _vertexBufferObjects;
     private readonly uint _id;
