@@ -11,6 +11,8 @@ public sealed class Mesh
     public const uint DefaultVertexArrayAttribLocation = 0;
     public const uint DefaultUVArrayAttribLocation = 1;
     public const uint DefaultNormalArrayAttribLocation = 2;
+    
+    public readonly VAO VertexArrayObject;
 
     private readonly uint _vertexArrayAttribLocation;
     private readonly uint _uvArrayAttribLocation;
@@ -45,8 +47,6 @@ public sealed class Mesh
         _normals = Array.Empty<Vector3>();
         _indices = Array.Empty<int>();
     }
-
-    public VAO VertexArrayObject { get; }
 
     public Vector3[] Vertices
     {
