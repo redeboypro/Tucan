@@ -12,6 +12,7 @@ public sealed class VAO
     public VAO()
     {
         GL.GenVertexArray(out _id);
+        
         _vertexBufferObjects = new Dictionary<uint, VBO>();
         _elementBufferObject = new EBO();
     }
@@ -85,14 +86,14 @@ public sealed class VAO
 
     public void UpdateVertexBufferObject<T>(uint attributeLocation, T[] data) where T : struct
     {
-        if (!_vertexBufferObjects.ContainsKey(attributeLocation))
+        if (!_vertexBufferObjects.TryGetValue(attributeLocation, out var vbo))
         {
             throw new Exception($"VAO: VBO ({attributeLocation}) is not instantiated!");
         }
         
         GL.BindVertexArray(_id);
         {
-            _vertexBufferObjects[attributeLocation].Update(data);
+            vbo.Update(data);
         }
         GL.BindVertexArray(0);
     }

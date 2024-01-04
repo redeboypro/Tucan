@@ -153,6 +153,17 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
         return (float) Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
     }
 
+    public static Vector3 Project(Vector3 vector, Vector3 onNormal)
+    {
+        var sqrLength = onNormal.LengthSqr;
+        if (sqrLength < MathF.Epsilon)
+        {
+            return Zero;
+        }
+
+        var dot = Dot(vector, onNormal);
+        return onNormal * dot / sqrLength;
+    }
 
     public static Vector3 operator -(Vector3 vec)
     {

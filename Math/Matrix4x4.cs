@@ -56,6 +56,50 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         Row3 = new Vector4(data[3, 0], data[3, 1], data[3, 2], data[3, 3]);
     }
 
+    public Vector3 Translation
+    {
+        get
+        {
+            return new Vector3(this[0][3], this[1][3], this[2][3]);
+        }
+    }
+    
+    public Quaternion Rotation
+    {
+        get
+        {
+            Vector3 forward;
+            {
+                forward.X = this[0][2];
+                forward.Y = this[1][2];
+                forward.Z = this[2][2];
+            }
+
+            Vector3 upwards;
+            {
+                upwards.X = this[0][1];
+                upwards.Y = this[1][1];
+                upwards.Z = this[2][1];
+            }
+
+            return Quaternion.LookRotation(forward, upwards);
+        }
+    }
+
+    public Vector3 Scale
+    {
+        get
+        {
+            Vector3 scale;
+            {
+                scale.X = new Vector4(this[0][0], this[1][0], this[2][0], this[3][0]).Length;
+                scale.Y = new Vector4(this[0][1], this[1][1], this[2][1], this[3][1]).Length;
+                scale.Z = new Vector4(this[0][2], this[1][2], this[2][2], this[3][2]).Length;
+            }
+            return scale;
+        }
+    }
+
     public IEnumerator<Vector4> GetEnumerator()
     {
         yield return Row0;
@@ -127,6 +171,23 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         return HashCode.Combine(Row0, Row1, Row2, Row3);
     }
     
+    public static Matrix4x4 Ortho(float left, float right, float bottom, float top, float near, float far)
+    {
+        var tx = -(right + left) / (right - left);
+        var ty = -(top + bottom) / (top - bottom);
+        var tz = -(far + near) / (far - near);
+
+        var result = new Matrix4x4
+        {
+            Row0 = new Vector4(2.0f / (right - left), 0, 0, 0),
+            Row1 = new Vector4(0, 2.0f / (top - bottom), 0, 0),
+            Row2 = new Vector4(0, 0, -2.0f / (far - near), 0),
+            Row3 = new Vector4(tx, ty, tz, 1)
+        };
+
+        return result;
+    }
+    
     public static Matrix4x4 PerspectiveFieldOfView(float fov, float aspect, float near, float far)
     {
         var tanHalfFov = MathF.Tan(fov / 2.0f);
@@ -157,7 +218,7 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         );
     }
     
-    public static Matrix4x4 Translation(Vector3 translation)
+    public static Matrix4x4 CreateTranslation(Vector3 translation)
     {
         return new Matrix4x4(
             new Vector4(1, 0, 0, 0),
@@ -167,7 +228,7 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         );
     }
     
-    public static Matrix4x4 FromQuaternion(Quaternion q)
+    public static Matrix4x4 CreateFromQuaternion(Quaternion q)
     {
         var x = q.X;
         var y = q.Y;
@@ -206,16 +267,13 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         );
     }
     
-    public static Matrix4x4 FromEulerAngles(float pitch, float yaw, float roll)
+    public static Matrix4x4 CreateFromEulerAngles(float pitch, float yaw, float roll)
     {
-        var cosPitch = MathF.Cos(pitch);
-        var sinPitch = MathF.Sin(pitch);
+        var (sinPitch, cosPitch) = MathF.SinCos(pitch);
         
-        var cosYaw = MathF.Cos(yaw);
-        var sinYaw = MathF.Sin(yaw);
+        var (sinYaw, cosYaw) = MathF.SinCos(yaw);
         
-        var cosRoll = MathF.Cos(roll);
-        var sinRoll = MathF.Sin(roll);
+        var (sinRoll, cosRoll) = MathF.SinCos(roll);
 
         var m00 = cosYaw * cosRoll;
         var m01 = sinPitch * sinYaw * cosRoll - cosPitch * sinRoll;
@@ -237,12 +295,45 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         );
     }
     
-    public static Matrix4x4 Scale(Vector3 scale)
+    public static Matrix4x4 CreateScale(Vector3 scale)
     {
         return new Matrix4x4(
             new Vector4(scale.X, 0, 0, 0),
             new Vector4(0, scale.Y, 0, 0),
             new Vector4(0, 0, scale.Z, 0),
+            new Vector4(0, 0, 0, 1)
+        );
+    }
+    
+    public static Matrix4x4 Invert(Matrix4x4 matrix)
+    {
+        var r0 = matrix.Row0;
+        var r1 = matrix.Row1;
+        var r2 = matrix.Row2;
+
+        var t = new Vector3(r0.W, r1.W, r2.W);
+
+        var c0 = new Vector3(r0.X, r1.X, r2.X);
+        var c1 = new Vector3(r0.Y, r1.Y, r2.Y);
+        var c2 = new Vector3(r0.Z, r1.Z, r2.Z);
+        
+        var det = Vector3.Dot(c0, Vector3.Cross(c1, c2));
+
+        if (det == 0)
+        {
+            throw new InvalidOperationException("Matrix is not invertible. Determinant is zero.");
+        }
+        
+        var invDet = 1 / det;
+        
+        var c00 = Vector3.Cross(c1, c2) * invDet;
+        var c01 = Vector3.Cross(c2, c0) * invDet;
+        var c02 = Vector3.Cross(c0, c1) * invDet;
+        
+        return new Matrix4x4(
+            new Vector4(c00, -Vector3.Dot(c00, t)),
+            new Vector4(c01, -Vector3.Dot(c01, t)),
+            new Vector4(c02, -Vector3.Dot(c02, t)),
             new Vector4(0, 0, 0, 1)
         );
     }

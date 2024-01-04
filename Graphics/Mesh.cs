@@ -56,7 +56,7 @@ public sealed class Mesh
         }
         set
         {
-            _vertices = value;
+            _vertices = value ?? throw new ArgumentException("Invalid vertices.");
 
             if (!_verticesBufferIsDirty)
             {
@@ -79,7 +79,7 @@ public sealed class Mesh
         }
         set
         {
-            _uv = value;
+            _uv = value ?? throw new ArgumentException("Invalid uv.");
 
             if (!_uvBufferIsDirty)
             {
@@ -100,7 +100,7 @@ public sealed class Mesh
         }
         set
         {
-            _normals = value;
+            _normals = value ?? throw new ArgumentException("Invalid normals.");
 
             if (!_normalsBufferIsDirty)
             {
@@ -121,7 +121,7 @@ public sealed class Mesh
         }
         set
         {
-            _indices = value;
+            _indices = value ?? throw new ArgumentException("Invalid indices.");
 
             if (!_indicesBufferIsDirty)
             {
@@ -219,10 +219,10 @@ public sealed class Mesh
             GL.EnableVertexAttribArray(_vertexArrayAttribLocation);
             GL.EnableVertexAttribArray(_uvArrayAttribLocation);
             GL.EnableVertexAttribArray(_normalArrayAttribLocation);
-            {
-                GL.CullFace(cullFaceMode);
-                GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
-            }
+            
+            GL.CullFace(cullFaceMode);
+            GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
+                
             GL.DisableVertexAttribArray(_vertexArrayAttribLocation);
             GL.DisableVertexAttribArray(_uvArrayAttribLocation);
             GL.DisableVertexAttribArray(_normalArrayAttribLocation);

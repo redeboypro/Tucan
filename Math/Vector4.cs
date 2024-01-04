@@ -29,6 +29,14 @@ public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
         W = 0;
     }
     
+    public Vector4(Vector3 vec, float w)
+    {
+        X = vec.X;
+        Y = vec.Y;
+        Z = vec.Z;
+        W = w;
+    }
+    
     public Vector4(float x, float y, float z, float w)
     {
         X = x;
