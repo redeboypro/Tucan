@@ -40,7 +40,7 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         Row3 = new Vector4(data[12], data[13], data[14], data[15]);
     }
     
-    public Matrix4x4(float[][] data)
+    public Matrix4x4(IReadOnlyList<float[]> data)
     {
         Row0 = new Vector4(data[0][0], data[0][1], data[0][2], data[0][3]);
         Row1 = new Vector4(data[1][0], data[1][1], data[1][2], data[1][3]);

@@ -168,12 +168,15 @@ public static class GL
     
     [DllImport(GL32Dll, EntryPoint = "glVertexAttribPointer" , SetLastError = true, ThrowOnUnmappableChar = true)]
     public static extern void VertexAttribPointer(uint index, int size, PointerType type, bool normalized, int stride, IntPtr pointer);
+    
+    [DllImport(GL32Dll, EntryPoint = "glDrawElements")]
+    public static extern void DrawArrays(DrawMode drawMode, int first, int count);
 
     [DllImport(GL32Dll, EntryPoint = "glDrawElements")]
     public static extern void DrawElements(DrawMode drawMode, int count, PointerType pointerType, IntPtr indicesPointer);
 
     [DllImport(GL32Dll, EntryPoint = "glCreateProgram")]
-    public static extern void CreateProgram();
+    public static extern uint CreateProgram();
     
     [DllImport(GL32Dll, EntryPoint = "glCreateProgram")]
     public static extern void AttachShader(uint program, uint shader);
@@ -224,22 +227,38 @@ public static class GL
     public static extern void Uniform4Int(uint location, int v0, int v1, int v2, int v3);
     
     [DllImport(GL32Dll, EntryPoint = "glUniformMatrix4fv")]
-    public static extern void UniformMatrix4x4(uint location, int count, bool transpose, float[] value);
+    public static extern unsafe void UniformMatrix4x4(uint location, int count, bool transpose, float* value);
 
     [DllImport(GL32Dll, EntryPoint = "glGetUniformLocation")]
     public static extern int GetUniformLocation(uint program, string uniformName);
     
     [DllImport(GL32Dll, EntryPoint = "glCreateShader")]
-    public static extern int CreateShader(ShaderType shaderType);
+    public static extern uint CreateShader(ShaderType shaderType);
     
     [DllImport(GL32Dll, EntryPoint = "glShaderSource")]
-    public static extern void ShaderSource(uint shader, uint count, string[] source, int[] length);
+    public static extern void ShaderSource(uint shader, int count, string[] source, int[]? length);
+    
+    public static void ShaderSource(uint shader, params string[] source)
+    {
+        ShaderSource(shader, source.Length, source, null);
+    }
     
     [DllImport(GL32Dll, EntryPoint = "glCompileShader")]
     public static extern void CompileShader(uint shader);
-    
+
+    [DllImport(GL32Dll, EntryPoint = "glGetShaderiv")]
+    public static extern void GetShaderIntVector(uint shader, ShaderParameter parameter, out int parameters);
+
     [DllImport(GL32Dll, EntryPoint = "glGetShaderInfoLog")]
-    public static extern void GetShaderInfoLog(uint shader, int bufSize, out int length, [Out] StringBuilder infoLog);
+    public static extern void GetShaderInfoLog(uint shader, int bufSize, out int length, StringBuilder infoLog);
+
+    public static string GetShaderInfoLog(uint shader)
+    {
+        GetShaderIntVector(shader, ShaderParameter.InfoLogLength, out var length);
+        var stringBuilder = new StringBuilder(length);
+        GetShaderInfoLog(shader, length, out length, stringBuilder);
+        return stringBuilder.ToString();
+    }
 
     [DllImport(GL32Dll, EntryPoint = "glHint")]
     public static extern void Hint(HintTarget target, HintMode mode);
@@ -252,6 +271,17 @@ public static class GL
         var textures = new uint[1];
         GenTextures(1, textures);
         texture = textures[0];
+    }
+    
+    [DllImport(GL32Dll, EntryPoint = "glDeleteTextures")]
+    public static extern void DeleteTextures(int n, [In] uint[] textures);
+
+    public static void DeleteTexture(uint texture)
+    {
+        DeleteVertexArrays(1, new []
+        {
+            texture
+        });
     }
     
     [DllImport(GL32Dll, EntryPoint = "glBindTexture")]
@@ -284,15 +314,15 @@ public static class GL
         PointerType type,
         byte[] data)
     {
-        var pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+        var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
         try
         {
-            var pointer = pinnedArray.AddrOfPinnedObject();
+            var pointer = handle.AddrOfPinnedObject();
             TexImage2D(target, level, internalformat, width, height, border, format, type, pointer);
         }
         finally
         {
-            pinnedArray.Free();
+            handle.Free();
         }
     }
     
@@ -315,15 +345,15 @@ public static class GL
         PointerType type,
         byte[] data)
     {
-        var pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+        var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
         try
         {
-            var pointer = pinnedArray.AddrOfPinnedObject();
+            var pointer = handle.AddrOfPinnedObject();
             TexSubImage2D(target, level, xOffset, yOffset, width, height, format, type, pointer);
         }
         finally
         {
-            pinnedArray.Free();
+            handle.Free();
         }
     }
     

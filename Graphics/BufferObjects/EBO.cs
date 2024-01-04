@@ -28,13 +28,13 @@ public struct EBO : IBO
         GL.BufferData(BufferType.ElementArrayBuffer, data, _bufferUsage);
     }
         
-    public void Update<T>(T[] data) where T : struct
+    public readonly void Update<T>(T[] data) where T : struct
     {
         GL.BindBuffer(BufferType.ElementArrayBuffer, _id);
         GL.BufferSubData(BufferType.ElementArrayBuffer, IntPtr.Zero, data);
     }
         
-    public void Delete()
+    public readonly void Delete()
     {
         GL.DeleteBuffer(_id);
     }

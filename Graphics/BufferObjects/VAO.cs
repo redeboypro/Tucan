@@ -6,12 +6,14 @@ public sealed class VAO
 {
     private readonly Dictionary<uint, VBO> _vertexBufferObjects;
     private readonly uint _id;
+    
+    private EBO _elementBufferObject;
 
     public VAO()
     {
         GL.GenVertexArray(out _id);
         _vertexBufferObjects = new Dictionary<uint, VBO>();
-        ElementBufferObject = new EBO();
+        _elementBufferObject = new EBO();
     }
 
     ~VAO()
@@ -35,13 +37,19 @@ public sealed class VAO
         }
     }
 
-    public EBO ElementBufferObject { get; }
+    public EBO ElementBufferObject
+    {
+        get
+        {
+            return _elementBufferObject;
+        }
+    }
 
     public void CreateElementBufferObject<T>(T[] data) where T : struct
     {
         GL.BindVertexArray(_id);
         {
-            ElementBufferObject.Create(data);
+            _elementBufferObject.Create(data);
         }
         GL.BindVertexArray(0);
     }
@@ -50,7 +58,7 @@ public sealed class VAO
     {
         GL.BindVertexArray(_id);
         {
-            ElementBufferObject.Update(data);
+            _elementBufferObject.Update(data);
         }
         GL.BindVertexArray(0);
     }
@@ -98,7 +106,7 @@ public sealed class VAO
                 vbo.Delete();
             }
 
-            ElementBufferObject.Delete();
+            _elementBufferObject.Delete();
         }
         GL.BindVertexArray(0);
         GL.DeleteVertexArray(_id);

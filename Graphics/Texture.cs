@@ -9,8 +9,7 @@ public sealed class Texture
     public readonly int Height;
 
     private readonly byte[] _pixelData;
-
-    private uint _id;
+    private readonly uint _id;
 
     public Texture(string filePath,
         TextureFilterMode minFilter = TextureFilterMode.Linear, 
@@ -45,7 +44,7 @@ public sealed class Texture
         fileStream.Seek(54, SeekOrigin.Begin);
         fileStream.Read(_pixelData, 0, imageDataSize);
 
-        Initialize(minFilter, magFilter, wrapS, wrapT);
+        Initialize(minFilter, magFilter, wrapS, wrapT, out _id);
     }
 
     public Texture(int width, int height,
@@ -60,7 +59,7 @@ public sealed class Texture
         var imageDataSize = Width * Height * 4;
         _pixelData = new byte[imageDataSize];
 
-        Initialize(minFilter, magFilter, wrapS, wrapT);
+        Initialize(minFilter, magFilter, wrapS, wrapT, out _id);
     }
 
     public uint Id
@@ -89,6 +88,7 @@ public sealed class Texture
     public Color GetPixel(int x, int y)
     {
         var index = (y * Width + x) * 4;
+        
         if (index < 0 || index >= _pixelData.Length - 3)
         {
             throw new Exception("Invalid pixel coordinates");
@@ -114,11 +114,16 @@ public sealed class Texture
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    private void Initialize(TextureFilterMode minFilter, TextureFilterMode magFilter, TextureWrapMode wrapS, TextureWrapMode wrapT)
+    private void Initialize(
+        TextureFilterMode minFilter,
+        TextureFilterMode magFilter,
+        TextureWrapMode wrapS,
+        TextureWrapMode wrapT,
+        out uint id)
     {
-        GL.GenTexture(out _id);
+        GL.GenTexture(out id);
             
-        GL.BindTexture(TextureTarget.Texture2D, _id);
+        GL.BindTexture(TextureTarget.Texture2D, id);
         {
             GL.TexParameter(TextureTarget.Texture2D, TextureParameter.MinFilter, minFilter);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameter.MagFilter, magFilter);
@@ -136,5 +141,15 @@ public sealed class Texture
                 _pixelData);
         }
         GL.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
+    public void Delete()
+    {
+        GL.DeleteTexture(_id);
+    }
+
+    ~Texture()
+    {
+        Delete();
     }
 }

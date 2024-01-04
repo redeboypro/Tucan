@@ -3,7 +3,7 @@
 namespace Tucan.External.HiddenFeatures;
 
 [StructLayout(LayoutKind.Explicit)]
-internal class PixelFormatDescriptor
+internal sealed class PixelFormatDescriptor
 {
     [FieldOffset(0)]
     internal ushort Size;

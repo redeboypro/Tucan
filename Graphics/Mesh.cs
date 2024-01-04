@@ -28,8 +28,8 @@ public sealed class Mesh
     private bool _normalsBufferIsDirty;
     private bool _indicesBufferIsDirty;
 
-    private Vector3 _boundsMinimum;
-    private Vector3 _boundsMaximum;
+    private Vector3 _aabbMinimum;
+    private Vector3 _aabbMaximum;
 
     public Mesh(
         uint vertexArrayAttribLocation = DefaultVertexArrayAttribLocation,
@@ -136,45 +136,33 @@ public sealed class Mesh
 
     public Vector3 GetBoundsMinimum()
     {
-        return _boundsMinimum;
+        return _aabbMinimum;
     }
 
     public Vector3 GetBoundsMaximum()
     {
-        return _boundsMaximum;
+        return _aabbMaximum;
     }
 
     public void RecalculateNormals()
     {
         var resultNormals = new Vector3[_vertices.Length];
 
-        var face = new int[3];
-        var vertexId = 0;
-        foreach (var index in _indices)
+        for (var i = 0; i < _indices.Length; i += 3)
         {
-            face[vertexId] = index;
+            var index1 = _indices[i];
+            var index2 = _indices[i + 1];
+            var index3 = _indices[i + 2];
 
-            vertexId++;
-            if (vertexId <= 2)
-            {
-                continue;
-            }
+            var v1 = _vertices[index1];
+            var v2 = _vertices[index2];
+            var v3 = _vertices[index3];
 
-            var inx1 = face[0];
-            var inx2 = face[1];
-            var inx3 = face[2];
+            var normal = Vector3.Normalize(Vector3.Cross(v2 - v1, v3 - v1));
 
-            var a = _vertices[inx1];
-            var b = _vertices[inx2];
-            var c = _vertices[inx3];
-
-            var normal = Vector3.Normalize(Vector3.Cross(b - a, c - a));
-
-            resultNormals[inx1] = normal;
-            resultNormals[inx2] = normal;
-            resultNormals[inx3] = normal;
-
-            vertexId = 0;
+            resultNormals[index1] = normal;
+            resultNormals[index2] = normal;
+            resultNormals[index3] = normal;
         }
 
         Normals = resultNormals;
@@ -182,44 +170,44 @@ public sealed class Mesh
 
     private void RecalculateBounds()
     {
-        _boundsMinimum.X = float.PositiveInfinity;
-        _boundsMinimum.Y = float.PositiveInfinity;
-        _boundsMinimum.Z = float.PositiveInfinity;
+        _aabbMinimum.X = float.PositiveInfinity;
+        _aabbMinimum.Y = float.PositiveInfinity;
+        _aabbMinimum.Z = float.PositiveInfinity;
 
-        _boundsMaximum.X = float.NegativeInfinity;
-        _boundsMaximum.Y = float.NegativeInfinity;
-        _boundsMaximum.Z = float.NegativeInfinity;
+        _aabbMaximum.X = float.NegativeInfinity;
+        _aabbMaximum.Y = float.NegativeInfinity;
+        _aabbMaximum.Z = float.NegativeInfinity;
 
         foreach (var vertex in _vertices)
         {
-            if (vertex.X < _boundsMinimum.X)
+            if (vertex.X < _aabbMinimum.X)
             {
-                _boundsMinimum.X = vertex.X;
+                _aabbMinimum.X = vertex.X;
+            }
+            
+            if (vertex.Y < _aabbMinimum.Y)
+            {
+                _aabbMinimum.Y = vertex.Y;
             }
 
-            if (vertex.Y < _boundsMinimum.Y)
+            if (vertex.Z < _aabbMinimum.Z)
             {
-                _boundsMinimum.Y = vertex.Y;
+                _aabbMinimum.Z = vertex.Z;
             }
 
-            if (vertex.Z < _boundsMinimum.Z)
+            if (vertex.X > _aabbMaximum.X)
             {
-                _boundsMinimum.Z = vertex.Z;
+                _aabbMaximum.X = vertex.X;
             }
 
-            if (vertex.X > _boundsMaximum.X)
+            if (vertex.Y > _aabbMaximum.Y)
             {
-                _boundsMaximum.X = vertex.X;
+                _aabbMaximum.Y = vertex.Y;
             }
 
-            if (vertex.Y > _boundsMaximum.Y)
+            if (vertex.Z > _aabbMaximum.Z)
             {
-                _boundsMaximum.Y = vertex.Y;
-            }
-
-            if (vertex.Z > _boundsMaximum.Z)
-            {
-                _boundsMaximum.Z = vertex.Z;
+                _aabbMaximum.Z = vertex.Z;
             }
         }
     }
@@ -227,18 +215,24 @@ public sealed class Mesh
     public void Draw(CullFaceMode cullFaceMode = CullFaceMode.Back)
     {
         GL.BindVertexArray(VertexArrayObject.Id);
-        GL.EnableVertexAttribArray(_vertexArrayAttribLocation);
-        GL.EnableVertexAttribArray(_uvArrayAttribLocation);
-        GL.EnableVertexAttribArray(_normalArrayAttribLocation);
-
-        GL.CullFace(cullFaceMode);
-        GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
-
-        GL.DisableVertexAttribArray(_vertexArrayAttribLocation);
-        GL.DisableVertexAttribArray(_uvArrayAttribLocation);
-        GL.DisableVertexAttribArray(_normalArrayAttribLocation);
-
+        {
+            GL.EnableVertexAttribArray(_vertexArrayAttribLocation);
+            GL.EnableVertexAttribArray(_uvArrayAttribLocation);
+            GL.EnableVertexAttribArray(_normalArrayAttribLocation);
+            {
+                GL.CullFace(cullFaceMode);
+                GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
+            }
+            GL.DisableVertexAttribArray(_vertexArrayAttribLocation);
+            GL.DisableVertexAttribArray(_uvArrayAttribLocation);
+            GL.DisableVertexAttribArray(_normalArrayAttribLocation);
+        }
         GL.BindVertexArray(0);
+    }
+
+    ~Mesh()
+    {
+        VertexArrayObject.Delete();
     }
 
     public static Mesh Plane(
@@ -363,7 +357,7 @@ public sealed class Mesh
             {
                 var topLeft = stack * (slices + 1) + slice;
                 var topRight = topLeft + 1;
-                var bottomLeft = ((stack + 1) * (slices + 1)) + slice;
+                var bottomLeft = (stack + 1) * (slices + 1) + slice;
                 var bottomRight = bottomLeft + 1;
 
                 indices[index++] = topLeft;
