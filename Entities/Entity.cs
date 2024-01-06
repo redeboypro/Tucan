@@ -257,7 +257,9 @@ public abstract class Entity
 
             if (space is Space.Local)
             {
-                _localMatrix = Matrix4x4.CreateScale(_localScale) * Matrix4x4.CreateFromQuaternion(_localRotation) * Matrix4x4.CreateTranslation(_localLocation);
+                _localMatrix = Matrix4x4.CreateScale(_localScale) * 
+                               Matrix4x4.CreateFromQuaternion(_localRotation) *
+                               Matrix4x4.CreateTranslation(_localLocation);
 
                 _worldMatrix = _localMatrix * parentMatrix;
 
@@ -273,7 +275,10 @@ public abstract class Entity
                 return;
             }
 
-            var localMatrix = Matrix4x4.CreateScale(_worldScale) * Matrix4x4.CreateFromQuaternion(_worldRotation) * Matrix4x4.CreateTranslation(_worldLocation) * Matrix4x4.Invert(parentMatrix);
+            var localMatrix = Matrix4x4.CreateScale(_worldScale) *
+                              Matrix4x4.CreateFromQuaternion(_worldRotation) *
+                              Matrix4x4.CreateTranslation(_worldLocation) *
+                              Matrix4x4.Invert(parentMatrix);
 
             _localLocation = localMatrix.Translation;
             _localRotation = localMatrix.Rotation;
