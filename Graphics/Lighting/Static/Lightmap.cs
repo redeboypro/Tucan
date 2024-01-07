@@ -40,7 +40,7 @@ public sealed class Lightmap
                 {
                     var pixelUV = new Vector2(X / (float) Width, Y / (float) Height);
 
-                    if (!IsPointInsideUV(triangle.UV, pixelUV))
+                    if (!IsPointInPolygon(triangle.UV, pixelUV))
                     {
                         continue;
                     }
@@ -85,7 +85,7 @@ public sealed class Lightmap
             {
                 var pixelUV = new Vector2(X / (float) Width, Y / (float) Height);
 
-                if (IsPointInsideUV(projectedUV, pixelUV) && IsPointInsideUV(triangle.UV, pixelUV))
+                if (IsPointInPolygon(projectedUV, pixelUV) && IsPointInPolygon(triangle.UV, pixelUV))
                 {
                     _texture.SetPixel(X, Y, _shadowColor);
                 }
@@ -93,48 +93,83 @@ public sealed class Lightmap
         }
     }
 
-    private bool IsPointInsideUV(IReadOnlyList<Vector2> uv, Vector2 point)
+    private bool TryGetProjectedUV(TriangularFace triangleA, TriangularFace triangleB, out List<Vector2> projectedUV)
     {
-        var uv0 = uv[0];
-        var uv1 = uv[1];
-        var uv2 = uv[2];
+        var planeBasicVertex = triangleB.A;
+        var planeCenter = planeBasicVertex.Origin;
+        var planeNormal = planeBasicVertex.Normal;
+        
+        var denominator0 = Vector3.Dot(planeNormal, _lightDirection);
 
-        var area = 0.5f * (-uv1.Y * uv2.X + uv0.Y * (-uv1.X + uv2.X) + uv0.X * (uv1.Y - uv2.Y) + uv1.X * uv2.Y);
+        projectedUV = new List<Vector2>();
 
-        var s = 1 / (2 * area) * (uv0.Y * uv2.X - uv0.X * uv2.Y + (uv2.Y - uv0.Y) * point.X + (uv0.X - uv2.X) * point.Y);
-        var t = 1 / (2 * area) * (uv0.X * uv1.Y - uv0.Y * uv1.X + (uv0.Y - uv1.Y) * point.X + (uv1.X - uv0.X) * point.Y);
-
-        return s >= -_bias && t >= -_bias && (s + t) <= 1 + _bias;
-    }
-
-    public bool TryGetProjectedUV(TriangularFace triangleA, TriangularFace triangleB, out Vector2[] projectedUV)
-    {
-        var denominator = Vector3.Dot(triangleB.A.Normal, _lightDirection);
-
-        projectedUV = new Vector2[3];
-
-        if (MathF.Abs(denominator) <= 0.0001f)
+        if (MathF.Abs(denominator0) <= MathF.Epsilon)
         {
             return false;
         }
 
-        for (var i = 0; i < 3; i++)
+        var i = 0;
+        for (var a = 0; a < 3; a++)
         {
-            var t = Vector3.Dot(triangleB.A.Origin - triangleA[i].Origin, triangleB.A.Normal) / denominator;
-
-            if (t < 0)
-            {
-                return false;
-            }
+            var aOrigin = triangleA[a].Origin;
             
-            var intersectionPoint = triangleA[i].Origin + _lightDirection * t;
+            var t0 = Vector3.Dot(planeCenter - aOrigin, planeNormal) / denominator0;
 
-            var barycentricCoordinates = CalculateBarycentric(intersectionPoint, triangleB);
+            Vector3 intersectionPoint;
+            Vector3 barycentricCoordinates;
+            
+            if (t0 <= 0)
+            {
+                i++;
 
-            projectedUV[i] = CalculateUV(barycentricCoordinates, triangleB);
+                if (i == 3)
+                {
+                    return false;
+                }
+
+                for (var b = 0; b < 3; b++)
+                {
+                    if (a == b)
+                    {
+                        continue;
+                    }
+                    
+                    var bOrigin = triangleA[b].Origin;
+                    var bDirection = Vector3.Normalize(aOrigin - bOrigin);
+
+                    var denominator1 = Vector3.Dot(planeNormal, bDirection);
+
+                    if (MathF.Abs(denominator1) <= MathF.Epsilon)
+                    {
+                        continue;
+                    }
+        
+                    var t1 = Vector3.Dot(planeCenter - bOrigin, planeNormal) / denominator1;
+            
+                    if (t1 < 0)
+                    {
+                        continue;
+                    }
+            
+                    intersectionPoint = bOrigin + bDirection * t1;
+                    barycentricCoordinates = CalculateBarycentric(intersectionPoint, triangleB);
+                    projectedUV.Add(CalculateUV(barycentricCoordinates, triangleB));
+                }
+
+                continue;
+            }
+
+            intersectionPoint = aOrigin + _lightDirection * t0;
+            barycentricCoordinates = CalculateBarycentric(intersectionPoint, triangleB);
+            projectedUV.Add(CalculateUV(barycentricCoordinates, triangleB));
         }
 
-        return true;
+        if (i > 0)
+        {
+            projectedUV = SortPolygonPoints(projectedUV);
+        }
+
+        return projectedUV.Count >= 3;
     }
     
     private int GetPixelXByU(float u)
@@ -144,7 +179,69 @@ public sealed class Lightmap
     
     private int GetPixelYByV(float v)
     {
-        return System.Math.Clamp((int) ((1 - v) * Height), 0, Height);
+        return System.Math.Clamp((int) (v * Height), 0, Height);
+    }
+
+    private static List<Vector2> SortPolygonPoints(List<Vector2> vertices)
+    {
+        var centroid = GetPolygonCentroid(vertices);
+        
+        var angles = new Dictionary<Vector2, double>();
+        foreach (var vertex in vertices)
+        {
+            var angle = MathF.Atan2(vertex.Y - centroid.Y, vertex.X - centroid.X);
+            if (!angles.ContainsKey(vertex))
+            {
+                angles.Add(vertex, angle);
+            }
+        }
+        
+        vertices.Sort((v1, v2) => angles[v1].CompareTo(angles[v2]));
+
+        return vertices;
+    }
+
+    private static Vector2 GetPolygonCentroid(IReadOnlyCollection<Vector2> vertices)
+    {
+        var centroid = Vector2.Zero;
+        var n = vertices.Count;
+        centroid = vertices.Aggregate(centroid, (current, vertex) => current + vertex);
+        return centroid / n;
+    }
+    
+    private static bool IsPointInPolygon(IReadOnlyList<Vector2> polygon, Vector2 testPoint)
+    {
+        var hasPositive = false;
+        var hasNegative = false;
+
+        for (var i = 0; i < polygon.Count; i++)
+        {
+            var v1 = polygon[i];
+            var v2 = polygon[(i + 1) % polygon.Count];
+            var d = CalculateDirection(testPoint, v1, v2);
+
+            switch (d)
+            {
+                case < 0: 
+                    hasNegative = true; 
+                    break;
+                case > 0:
+                    hasPositive = true;
+                    break;
+            }
+
+            if (hasPositive && hasNegative)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static float CalculateDirection(Vector2 point, Vector2 vertex1, Vector2 vertex2)
+    {
+        return (point.X - vertex2.X) * (vertex1.Y - vertex2.Y) - (point.Y - vertex2.Y) * (vertex1.X - vertex2.X);
     }
 
     private static Vector3 CalculateBarycentric(Vector3 point, TriangularFace triangle)

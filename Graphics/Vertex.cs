@@ -43,7 +43,7 @@ public struct Vertex
     {
         get
         {
-            return Origin.Y;
+            return Origin.Z;
         }
         set
         {
@@ -71,7 +71,7 @@ public struct Vertex
         }
         set
         {
-            UV.X = value;
+            UV.Y = value;
         }
     }
 }
