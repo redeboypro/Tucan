@@ -2,6 +2,7 @@
 using Tucan.External;
 using Tucan.External.HiddenFeatures;
 using Tucan.External.OpenGL;
+using Tucan.External.OpenGL.ModernGL;
 
 namespace Tucan.Windowing;
 
@@ -15,7 +16,7 @@ public sealed class Display
     private IntPtr _hDeviceContext;
     private IntPtr _hRenderContext;
 
-    public Display(DisplaySettings settings)
+    public Display(DisplaySettings settings, int coreMajorVersion, int coreMinorVersion)
     {
         _hInstance = Marshal.GetHINSTANCE(GetType().Module);
         _settings = settings;
@@ -39,18 +40,139 @@ public sealed class Display
             IntPtr.Zero);
 
         _hDeviceContext = User32.GetDC(_hWindow);
-        
-        if (SetPixelFormat())
+
+        _hRenderContext = InitializeGL(_hDeviceContext, coreMajorVersion, coreMinorVersion);
+
+        if (_hRenderContext == IntPtr.Zero) 
         {
-            _hRenderContext = GL.CreateContext(_hDeviceContext);
-            if (_hRenderContext == IntPtr.Zero)
-            {
-                User32.ReleaseDC(_hWindow, _hDeviceContext);
-                _hDeviceContext = IntPtr.Zero;
-            }
+            User32.ReleaseDC(_hWindow, _hDeviceContext); 
+            _hDeviceContext = IntPtr.Zero;
         }
 
         GL.MakeCurrent(_hDeviceContext, _hRenderContext);
+    }
+
+    private IntPtr InitializeGL(IntPtr hDeviceContext, int coreMajorVersion, int coreMinorVersion)
+    {
+        InitializeExtensions();
+
+        var pixelFormatAttribs = new []
+        {
+            (int) PixelFormatAttribute.DrawToWindowArb, 1,
+            (int) PixelFormatAttribute.SupportOpenGLArb, 1,
+            (int) PixelFormatAttribute.DoubleBufferArb, 1,
+            (int) PixelFormatAttribute.AccelerationArb, (int) PixelFormatAttribute.FullAccelerationArb,
+            (int) PixelFormatAttribute.PixelTypeArb, (int) PixelFormatAttribute.TypeRgbaArb,
+            (int) PixelFormatAttribute.ColorBitsArb, 32,
+            (int) PixelFormatAttribute.DepthBitsArb, 24,
+            (int) PixelFormatAttribute.StencilBitsArb, 8
+        };
+
+        MGL.ChoosePixelFormat(hDeviceContext, pixelFormatAttribs, 0, 1, out var pixelFormat, out var numFormats);
+        if (numFormats == 0)
+        {
+            throw new Exception("Failed to set the modern OpenGL pixel format.");
+        }
+
+        GDI32.DescribePixelFormat(hDeviceContext, pixelFormat, Marshal.SizeOf<PixelFormatDescriptor>(),
+            out var pixelFormatDescriptor);
+
+        if (GDI32.SetPixelFormat(hDeviceContext, pixelFormat, ref pixelFormatDescriptor) == 0)
+        {
+            throw new Exception("Failed to set the modern OpenGL pixel format.");
+        }
+
+        var glCoreAttribs = new[]
+        {
+            (int) ContextAttribute.MajorVersion, coreMajorVersion,
+            (int) ContextAttribute.MinorVersion, coreMinorVersion,
+            (int) ContextAttribute.ProfileMaskArb,  (int) ContextAttribute.CoreProfileBitArb,
+            0
+        };
+
+        var glContext = MGL.CreateContextAttribs(hDeviceContext, IntPtr.Zero, glCoreAttribs);
+        if (glContext == IntPtr.Zero)
+        {
+            throw new Exception("Failed to activate modern OpenGL pixel format.");
+        }
+
+        if (GL.MakeCurrent(hDeviceContext, glContext) == 0)
+        {
+            throw new Exception("Failed to create modern OpenGL pixel format.");
+        }
+
+        return glContext;
+    }
+
+    private void InitializeExtensions()
+    {
+        var dummyWindowClass = new WindowClass
+        {
+            Size = Marshal.SizeOf(typeof(WindowClass)),
+            Style = ClassStyle.HorizontalRedraw | ClassStyle.VerticalRedraw,
+            Background = (IntPtr) 2,
+            ClassExtra = 0,
+            WindowExtra = 0,
+            Icon = IntPtr.Zero,
+            Cursor = User32.LoadCursor(IntPtr.Zero, (int) CursorType.No),
+            MenuName = null!,
+            MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(new WndProc(User32.DefaultMessageCallback)),
+            Instance = _hInstance,
+            ClassName = "DummyClass"
+        };
+        
+        var registerResult = User32.RegisterClass(ref dummyWindowClass);
+        if (registerResult == 0)
+        {
+            throw new Exception("Failed to register dummy.");
+        }
+        
+        const int useDefault = unchecked((int) 0x80000000);
+
+        var dummyWindowInstance = User32.CreateWindowEx(
+            0,
+            registerResult,
+            "Dummy",
+            0,
+            useDefault, useDefault, 
+            useDefault, useDefault,
+            IntPtr.Zero, 
+            IntPtr.Zero,
+            _hInstance, 
+            IntPtr.Zero);
+        
+        if (dummyWindowInstance == IntPtr.Zero) 
+        {
+            throw new Exception("Failed to create dummy.");
+        }
+
+        var dummyDeviceContext = User32.GetDC(dummyWindowInstance);
+
+        if (SetPixelFormat(ref dummyWindowInstance, ref dummyDeviceContext))
+        {
+            var dummyGLContext = GL.CreateContext(dummyDeviceContext);
+
+            if (dummyDeviceContext == IntPtr.Zero)
+            {
+                throw new Exception("Failed to create dummy OpenGL context");
+            }
+
+            if (GL.MakeCurrent(dummyDeviceContext, dummyGLContext) == 0)
+            {
+                throw new Exception("Failed to activate dummy OpenGL context");
+            }
+            
+            MGL.LoadFunctions();
+
+            GL.MakeCurrent(dummyDeviceContext, IntPtr.Zero);
+            GL.DeleteContext(dummyGLContext);
+            User32.ReleaseDC(dummyWindowInstance, dummyDeviceContext);
+            User32.DestroyWindow(dummyWindowInstance);
+        }
+        else
+        {
+            throw new Exception("Failed to set dummy pixel format");
+        }
     }
     
     public WindowMessageCallbackDel? MessageCallback { get; set; }
@@ -123,7 +245,7 @@ public sealed class Display
     {
         var windowClassInstance = new WindowClass
         {
-            Size = Marshal.SizeOf(typeof(WindowClass)),
+            Size = Marshal.SizeOf<WindowClass>(),
             Style = windowClassStyle,
             Background = (IntPtr) 2,
             ClassExtra = 0,
@@ -140,26 +262,26 @@ public sealed class Display
         return User32.RegisterClass(ref windowClassInstance);
     }
 
-    private bool SetPixelFormat()
+    private bool SetPixelFormat(ref IntPtr hWindow, ref IntPtr hDeviceContext)
     {
         var pixelFormat = new PixelFormatDescriptor
         {
-            Size = 40,
+            Size = (ushort) Marshal.SizeOf<PixelFormatDescriptor>(),
             Version = 1,
             Flags = _settings.PixelFormatDescriptorFlags,
             PixelType = _settings.PixelFormatDescriptorType,
-            ColorBits = 24,
+            ColorBits = 32,
             RedBits = 0, RedShift = 0,
             GreenBits = 0, GreenShift = 0,
             BlueBits = 0, BlueShift = 0,
-            AlphaBits = 0, AlphaShift = 0,
+            AlphaBits = 8, AlphaShift = 0,
             AccumBits = 0, 
             AccumRedBits = 0, 
             AccumGreenBits = 0,
             AccumBlueBits = 0, 
             AccumAlphaBits = 0,
-            DepthBits = 24, 
-            StencilBits = 0,
+            DepthBits = 32, 
+            StencilBits = 8,
             AuxBuffers = 0,
             LayerType = _settings.PixelFormatDescriptorPlane,
             Reserved = 0,
@@ -168,33 +290,28 @@ public sealed class Display
             DamageMask = 0
         };
         
-        var iPixelFormat = GDI32.ChoosePixelFormat(_hDeviceContext, pixelFormat);
-        if (iPixelFormat == 0) 
-        {
-            pixelFormat.DepthBits = 32;
-            iPixelFormat = GDI32.ChoosePixelFormat(_hDeviceContext, pixelFormat);
-        }
-        
+        var iPixelFormat = GDI32.ChoosePixelFormat(hDeviceContext, ref pixelFormat);
+
         if (iPixelFormat == 0) 
         {
             pixelFormat.DepthBits = 16;
-            iPixelFormat = GDI32.ChoosePixelFormat(_hDeviceContext, pixelFormat);
+            iPixelFormat = GDI32.ChoosePixelFormat(hDeviceContext, ref pixelFormat);
         }
         
         if (iPixelFormat == 0) 
         {
-            User32.ReleaseDC(_hWindow, _hDeviceContext);
-            _hDeviceContext = IntPtr.Zero;
+            User32.ReleaseDC(hWindow, hDeviceContext);
+            hDeviceContext = IntPtr.Zero;
             return false;
         }
 
-        if (GDI32.SetPixelFormat(_hDeviceContext, iPixelFormat, pixelFormat) != 0)
+        if (GDI32.SetPixelFormat(hDeviceContext, iPixelFormat, ref pixelFormat) != 0)
         {
             return true;
         }
         
-        User32.ReleaseDC(_hWindow, _hDeviceContext);
-        _hDeviceContext = IntPtr.Zero;
+        User32.ReleaseDC(hWindow, hDeviceContext);
+        hDeviceContext = IntPtr.Zero;
         return false;
     }
     

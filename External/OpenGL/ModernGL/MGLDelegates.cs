@@ -6,6 +6,12 @@ namespace Tucan.External.OpenGL.ModernGL;
 public static class MGLDelegates
 {
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    public delegate IntPtr ChoosePixelFormat(IntPtr hDC, int[] attribList, uint pixelFormatAttrib, uint maxFormats, out int pixelFormat, out uint numFormats);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    public delegate IntPtr CreateContextAttribs(IntPtr hDC, IntPtr hShareContext, int[] attribList);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate void GenVertexArrays(int n, [Out] uint[] arrays);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]

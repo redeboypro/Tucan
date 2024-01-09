@@ -9,6 +9,10 @@ public static class MGL
     
     internal static bool FunctionsAreLoaded;
     
+    public static MGLDelegates.ChoosePixelFormat? ChoosePixelFormat { get; private set; }
+
+    public static MGLDelegates.CreateContextAttribs? CreateContextAttribs { get; private set; }
+    
     public static MGLDelegates.GenVertexArrays? GenVertexArrays { get; private set; }
     
     public static MGLDelegates.DeleteVertexArrays? DeleteVertexArrays { get; private set; }
@@ -136,6 +140,10 @@ public static class MGL
 
     public static void LoadFunctions()
     {
+        ChoosePixelFormat = GetProcAddress<MGLDelegates.ChoosePixelFormat>("wglChoosePixelFormatARB");
+        
+        CreateContextAttribs = GetProcAddress<MGLDelegates.CreateContextAttribs>("wglCreateContextAttribsARB");
+
         GenVertexArrays = GetProcAddress<MGLDelegates.GenVertexArrays>("glGenVertexArrays");
         
         DeleteVertexArrays = GetProcAddress<MGLDelegates.DeleteVertexArrays>("glDeleteVertexArrays");

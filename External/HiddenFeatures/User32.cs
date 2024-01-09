@@ -61,4 +61,12 @@ internal static class User32
 
     [DllImport(USR32DLL)]
     internal static extern IntPtr DispatchMessage([In] ref WindowMessageData lpMessage); 
+    
+    
+    [DllImport(USR32DLL, EntryPoint = "DefWindowProcA")]
+    internal static extern IntPtr DefaultMessageCallback(
+        [In] IntPtr   hWindow,
+        [In] uint   message,
+        [In] IntPtr wParam,
+        [In] IntPtr lParam); 
 }
