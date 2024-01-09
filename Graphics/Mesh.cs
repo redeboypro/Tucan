@@ -1,4 +1,5 @@
 ﻿using Tucan.External.OpenGL;
+using Tucan.External.OpenGL.ModernGL;
 using Tucan.Graphics.BufferObjects;
 using Tucan.Math;
 
@@ -214,20 +215,20 @@ public sealed class Mesh
 
     public void Draw(CullFaceMode cullFaceMode = CullFaceMode.Back)
     {
-        GL.BindVertexArray(VertexArrayObject.Id);
+        MGL.BindVertexArray?.Invoke(VertexArrayObject.Id);
         {
-            GL.EnableVertexAttribArray(_vertexArrayAttribLocation);
-            GL.EnableVertexAttribArray(_uvArrayAttribLocation);
-            GL.EnableVertexAttribArray(_normalArrayAttribLocation);
+            MGL.EnableVertexAttribArray?.Invoke(_vertexArrayAttribLocation);
+            MGL.EnableVertexAttribArray?.Invoke(_uvArrayAttribLocation);
+            MGL.EnableVertexAttribArray?.Invoke(_normalArrayAttribLocation);
             
             GL.CullFace(cullFaceMode);
             GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
                 
-            GL.DisableVertexAttribArray(_vertexArrayAttribLocation);
-            GL.DisableVertexAttribArray(_uvArrayAttribLocation);
-            GL.DisableVertexAttribArray(_normalArrayAttribLocation);
+            MGL.DisableVertexAttribArray?.Invoke(_vertexArrayAttribLocation);
+            MGL.DisableVertexAttribArray?.Invoke(_uvArrayAttribLocation);
+            MGL.DisableVertexAttribArray?.Invoke(_normalArrayAttribLocation);
         }
-        GL.BindVertexArray(0);
+        MGL.BindVertexArray?.Invoke(0);
     }
 
     ~Mesh()

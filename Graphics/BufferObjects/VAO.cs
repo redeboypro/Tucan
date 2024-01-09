@@ -1,4 +1,5 @@
 ﻿using Tucan.External.OpenGL;
+using Tucan.External.OpenGL.ModernGL;
 
 namespace Tucan.Graphics.BufferObjects;
 
@@ -11,7 +12,7 @@ public sealed class VAO
 
     public VAO()
     {
-        GL.GenVertexArray(out _id);
+        MGL.GenVertexArray?.Invoke(1, out _id);
         
         _vertexBufferObjects = new Dictionary<uint, VBO>();
         _elementBufferObject = new EBO();
@@ -46,22 +47,32 @@ public sealed class VAO
         }
     }
 
+    public void Begin()
+    {
+        MGL.BindVertexArray?.Invoke(_id);
+    }
+
+    public void End()
+    {
+        MGL.BindVertexArray?.Invoke(0);
+    }
+
     public void CreateElementBufferObject<T>(T[] data) where T : struct
     {
-        GL.BindVertexArray(_id);
+        Begin();
         {
             _elementBufferObject.Create(data);
         }
-        GL.BindVertexArray(0);
+        End();
     }
         
     public void UpdateElementBufferObject<T>(T[] data) where T : struct
     {
-        GL.BindVertexArray(_id);
+        Begin();
         {
             _elementBufferObject.Update(data);
         }
-        GL.BindVertexArray(0);
+        End();
     }
         
     public void CreateVertexBufferObject<T>(
@@ -75,13 +86,13 @@ public sealed class VAO
             throw new Exception($"VAO: VBO ({attributeLocation}) is already instantiated!");
         }
         
-        GL.BindVertexArray(_id);
+        Begin();
         {
             var vbo = new VBO(attributeLocation, dimension, pointerType);
             vbo.Create(data);
             _vertexBufferObjects.Add(attributeLocation, vbo);
         }
-        GL.BindVertexArray(0);
+        End();
     }
 
     public void UpdateVertexBufferObject<T>(uint attributeLocation, T[] data) where T : struct
@@ -91,16 +102,16 @@ public sealed class VAO
             throw new Exception($"VAO: VBO ({attributeLocation}) is not instantiated!");
         }
         
-        GL.BindVertexArray(_id);
+        Begin();
         {
             vbo.Update(data);
         }
-        GL.BindVertexArray(0);
+        End();
     }
 
     public void Delete()
     {
-        GL.BindVertexArray(_id);
+        Begin();
         {
             foreach (var vbo in _vertexBufferObjects.Values)
             {
@@ -109,7 +120,7 @@ public sealed class VAO
 
             _elementBufferObject.Delete();
         }
-        GL.BindVertexArray(0);
-        GL.DeleteVertexArray(_id);
+        End();
+        MGL.DeleteVertexArrays?.Invoke(1, _id);
     }
 }

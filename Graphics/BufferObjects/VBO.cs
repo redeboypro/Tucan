@@ -1,4 +1,5 @@
 ﻿using Tucan.External.OpenGL;
+using Tucan.External.OpenGL.ModernGL;
 
 namespace Tucan.Graphics.BufferObjects;
 
@@ -34,20 +35,20 @@ public struct VBO : IBO
 
     public void Create<T>(T[] data) where T : struct
     {
-        GL.GenBuffer(out _id);
-        GL.BindBuffer(BufferType.ArrayBuffer, _id);
-        GL.BufferData(BufferType.ArrayBuffer, data, _bufferUsage);
-        GL.VertexAttribPointer(AttributeLocation, Dimension, _attribPointerType, false, 0, IntPtr.Zero);
+        MGL.GenBuffer?.Invoke(1, out _id);
+        MGL.BindBuffer(BufferType.ArrayBuffer, _id);
+        MGL.StoreBufferData(BufferType.ArrayBuffer, data, _bufferUsage);
+        MGL.VertexAttribPointer?.Invoke(AttributeLocation, Dimension, _attribPointerType, false, 0, IntPtr.Zero);
     }
         
     public void Update<T>(T[] data) where T : struct
     {
-        GL.BindBuffer(BufferType.ArrayBuffer, _id);
-        GL.BufferSubData(BufferType.ArrayBuffer, IntPtr.Zero, data);
+        MGL.BindBuffer(BufferType.ArrayBuffer, _id);
+        MGL.StoreBufferSubsetData(BufferType.ArrayBuffer, IntPtr.Zero, data);
     }
         
     public void Delete()
     {
-        GL.DeleteBuffer(_id);
+        MGL.DeleteBuffers?.Invoke(1, _id);
     }
 }

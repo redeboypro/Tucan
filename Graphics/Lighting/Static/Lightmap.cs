@@ -11,8 +11,8 @@ public sealed class Lightmap
     private readonly Texture _texture;
     private readonly Vector3 _lightDirection;
     private readonly TriangularFace[] _triangles;
-    private readonly float _bias;
     private readonly Color _shadowColor;
+    private readonly float _bias;
     
     public Lightmap(int width, int height, Vector3 lightPosition, TriangularFace[] triangles, Color shadowColor, float bias = 0.0f)
     {
@@ -209,7 +209,7 @@ public sealed class Lightmap
         return centroid / n;
     }
     
-    private static bool IsPointInPolygon(IReadOnlyList<Vector2> polygon, Vector2 testPoint)
+    private bool IsPointInPolygon(IReadOnlyList<Vector2> polygon, Vector2 testPoint)
     {
         var hasPositive = false;
         var hasNegative = false;
@@ -219,15 +219,15 @@ public sealed class Lightmap
             var v1 = polygon[i];
             var v2 = polygon[(i + 1) % polygon.Count];
             var d = CalculateDirection(testPoint, v1, v2);
-
-            switch (d)
+            
+            if (d < -_bias)
             {
-                case < 0: 
-                    hasNegative = true; 
-                    break;
-                case > 0:
-                    hasPositive = true;
-                    break;
+                hasNegative = true; 
+            }
+            
+            if (d > _bias)
+            {
+                hasPositive = true;
             }
 
             if (hasPositive && hasNegative)

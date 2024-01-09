@@ -121,7 +121,7 @@ public sealed class Texture
         TextureWrapMode wrapT,
         out uint id)
     {
-        GL.GenTexture(out id);
+        GL.GenTexture(1, out id);
             
         GL.BindTexture(TextureTarget.Texture2D, id);
         {
@@ -145,7 +145,7 @@ public sealed class Texture
 
     public void Delete()
     {
-        GL.DeleteTexture(_id);
+        GL.DeleteTextures(1, _id);
     }
 
     ~Texture()

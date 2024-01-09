@@ -1,4 +1,5 @@
 ﻿using Tucan.External.OpenGL;
+using Tucan.External.OpenGL.ModernGL;
 using Tucan.Math;
 
 namespace Tucan.Graphics;
@@ -13,74 +14,78 @@ public sealed class Shader
     {
         _vertexShaderId = LoadShaderFromSource(vertexShader, ShaderType.VertexShader);
         _fragmentShaderId = LoadShaderFromSource(fragmentShader, ShaderType.FragmentShader);
-        _programId = GL.CreateProgram();
+        
+        if (MGL.CreateProgram != null)
+        {
+            _programId = MGL.CreateProgram();
+        }
 
         AttachAndValidate(attributes);
     }
 
     public void Start()
     {
-        GL.UseProgram(_programId);
+        MGL.UseProgram?.Invoke(_programId);
     }
 
     public void Stop()
     {
-        GL.UseProgram(0);
+        MGL.UseProgram?.Invoke(0);
     }
 
     public void Clear()
     {
-        GL.UseProgram(0);
-        GL.DetachShader(_programId, _vertexShaderId);
-        GL.DetachShader(_programId, _fragmentShaderId);
-        GL.DeleteShader(_vertexShaderId);
-        GL.DeleteShader(_fragmentShaderId);
-        GL.DeleteProgram(_programId);
+        MGL.UseProgram?.Invoke(0);
+        MGL.DetachShader?.Invoke(_programId, _vertexShaderId);
+        MGL.DetachShader?.Invoke(_programId, _fragmentShaderId);
+        MGL.DeleteShader?.Invoke(_vertexShaderId);
+        MGL.DeleteShader?.Invoke(_fragmentShaderId);
+        MGL.DeleteProgram?.Invoke(_programId);
     }
 
-    private void BindAttribute(uint attribute, string name)
+    public void BindAttribute(uint attribute, string name)
     {
-        GL.BindAttribLocation(_programId, attribute, name);
+        MGL.BindAttribLocation?.Invoke(_programId, attribute, name);
     }
 
     public void SetUniform(uint uniformLocation, float value)
     {
-        GL.Uniform1(uniformLocation, value);
+        MGL.Uniform1?.Invoke(uniformLocation, value);
     }
 
     public void SetUniform(uint uniformLocation, int value)
     {
-        GL.Uniform1(uniformLocation, value);
+        MGL.Uniform1?.Invoke(uniformLocation, value);
     }
 
     public void SetUniform(uint uniformLocation, Vector2 value)
     {
-        GL.Uniform2(uniformLocation, value.X, value.Y);
+        MGL.Uniform2?.Invoke(uniformLocation, value.X, value.Y);
     }
 
     public void SetUniform(uint uniformLocation, float x, float y)
     {
-        GL.Uniform2(uniformLocation, x, y);
+        MGL.Uniform2?.Invoke(uniformLocation, x, y);
     }
 
     public void SetUniform(uint uniformLocation, Vector3 value)
     {
-        GL.Uniform3(uniformLocation, value.X, value.Y, value.Z);
+        MGL.Uniform3?.Invoke(uniformLocation, value.X, value.Y, value.Z);
     }
 
     public void SetUniform(uint uniformLocation, float x, float y, float z)
     {
-        GL.Uniform3(uniformLocation, x, y, z);
+        MGL.Uniform3?.Invoke(uniformLocation, x, y, z);
     }
 
     public void SetUniform(uint uniformLocation, Vector4 value)
     {
-        GL.Uniform4(uniformLocation, value.X, value.Y, value.Z, value.W);
+        MGL.Uniform4?.Invoke(uniformLocation, value.X, value.Y, value.Z, value.W);
     }
 
     public void SetUniform(uint uniformLocation, float x, float y, float z, float w)
     {
-        GL.Uniform4(uniformLocation, x, y, z, w);
+        MGL.Uniform4?.Invoke(uniformLocation, x, y, z, w);
     }
 
     public void SetUniform(uint uniformLocation, Matrix4x4 value)
@@ -95,18 +100,23 @@ public sealed class Shader
                 value[3][0], value[3][1], value[3][2], value[3][3]
             };
             
-            GL.UniformMatrix4x4(uniformLocation, 1, false, ptr);
+            MGL.UniformMatrix4x4?.Invoke(uniformLocation, 1, false, ptr);
         }
     }
 
     public void SetUniform(uint uniformLocation, bool value)
     {
-        GL.Uniform1(uniformLocation, Convert.ToInt32(value));
+        MGL.Uniform1?.Invoke(uniformLocation, Convert.ToInt32(value));
     }
 
     public int GetUniformLocation(string uniformName)
     {
-        return GL.GetUniformLocation(_programId, uniformName);
+        if (MGL.GetUniformLocation != null)
+        {
+            return MGL.GetUniformLocation(_programId, uniformName);
+        }
+
+        throw new Exception(MGL.FunctionsNotLoadedException);
     }
 
     ~Shader()
@@ -116,31 +126,37 @@ public sealed class Shader
     
     private void AttachAndValidate(IEnumerable<ShaderAttribute> attributes)
     {
-        GL.AttachShader(_programId, _vertexShaderId);
-        GL.AttachShader(_programId, _fragmentShaderId);
+        MGL.AttachShader?.Invoke(_programId, _vertexShaderId);
+        MGL.AttachShader?.Invoke(_programId, _fragmentShaderId);
 
         foreach (var attribute in attributes)
         {
             BindAttribute(attribute.Location, attribute.Name);
         }
 
-        GL.LinkProgram(_programId);
-        GL.ValidateProgram(_programId);
+        MGL.LinkProgram?.Invoke(_programId);
+        MGL.ValidateProgram?.Invoke(_programId);
     }
 
     private static uint LoadShaderFromSource(string source, ShaderType type)
     {
-        var shaderId = GL.CreateShader(type);
-
-        GL.ShaderSource(shaderId, source);
-        GL.CompileShader(shaderId);
-
-        var log = GL.GetShaderInfoLog(shaderId);
-        if (!string.IsNullOrEmpty(log))
+        if (MGL.CreateShader == null)
         {
+            throw new Exception(MGL.FunctionsNotLoadedException);
+        }
+        
+        var shaderId = MGL.CreateShader(type);
+
+        MGL.ShaderSourceParams(shaderId, source);
+        MGL.CompileShader?.Invoke(shaderId);
+
+        var log = MGL.GetShaderLog(shaderId);
+        if (!string.IsNullOrEmpty(log)) 
+        { 
             throw new Exception(log);
         }
 
         return shaderId;
+
     }
 }
