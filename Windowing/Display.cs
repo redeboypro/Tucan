@@ -74,8 +74,9 @@ public sealed class Display
             throw new Exception("Failed to set the modern OpenGL pixel format.");
         }
 
-        GDI32.DescribePixelFormat(hDeviceContext, pixelFormat, Marshal.SizeOf<PixelFormatDescriptor>(),
-            out var pixelFormatDescriptor);
+        var pixelFormatDescriptor = new PixelFormatDescriptor();
+        GDI32.DescribePixelFormat(hDeviceContext, pixelFormat, (uint) Marshal.SizeOf<PixelFormatDescriptor>(),
+            ref pixelFormatDescriptor);
 
         if (GDI32.SetPixelFormat(hDeviceContext, pixelFormat, ref pixelFormatDescriptor) == 0)
         {
@@ -108,13 +109,13 @@ public sealed class Display
     {
         var dummyWindowClass = new WindowClass
         {
-            Size = Marshal.SizeOf(typeof(WindowClass)),
+            Size = Marshal.SizeOf<WindowClass>(),
             Style = ClassStyle.HorizontalRedraw | ClassStyle.VerticalRedraw,
             Background = (IntPtr) 2,
             ClassExtra = 0,
             WindowExtra = 0,
             Icon = IntPtr.Zero,
-            Cursor = User32.LoadCursor(IntPtr.Zero, (int) CursorType.No),
+            Cursor = User32.LoadCursor(IntPtr.Zero, 0),
             MenuName = null!,
             MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(new WndProc(User32.DefaultMessageCallback)),
             Instance = _hInstance,

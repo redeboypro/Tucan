@@ -3,91 +3,91 @@ using System.Text;
 
 namespace Tucan.External.OpenGL.ModernGL;
 
-public static class MGL
+internal static class MGL
 {
     internal const string FunctionsNotLoadedException = "Modern OpenGL functions are not loaded!";
     
     internal static bool FunctionsAreLoaded;
     
-    public static MGLDelegates.ChoosePixelFormat? ChoosePixelFormat { get; private set; }
+    internal static MGLDelegates.ChoosePixelFormat? ChoosePixelFormat { get; private set; }
 
-    public static MGLDelegates.CreateContextAttribs? CreateContextAttribs { get; private set; }
+    internal static MGLDelegates.CreateContextAttribs? CreateContextAttribs { get; private set; }
     
-    public static MGLDelegates.GenVertexArrays? GenVertexArrays { get; private set; }
+    internal static MGLDelegates.GenVertexArrays? GenVertexArrays { get; private set; }
     
-    public static MGLDelegates.DeleteVertexArrays? DeleteVertexArrays { get; private set; }
+    internal static MGLDelegates.DeleteVertexArrays? DeleteVertexArrays { get; private set; }
     
-    public static MGLDelegates.GenVertexArray? GenVertexArray { get; private set; }
+    internal static MGLDelegates.GenVertexArray? GenVertexArray { get; private set; }
 
-    public static MGLDelegates.BindVertexArray? BindVertexArray { get; private set; }
+    internal static MGLDelegates.BindVertexArray? BindVertexArray { get; private set; }
     
-    public static MGLDelegates.GenBuffers? GenBuffers { get; private set; }
+    internal static MGLDelegates.GenBuffers? GenBuffers { get; private set; }
     
-    public static MGLDelegates.DeleteBuffers? DeleteBuffers { get; private set; }
+    internal static MGLDelegates.DeleteBuffers? DeleteBuffers { get; private set; }
     
-    public static MGLDelegates.GenBuffer? GenBuffer { get; private set; }
+    internal static MGLDelegates.GenBuffer? GenBuffer { get; private set; }
 
-    public static MGLDelegates.BindBuffer? BindBuffer { get; private set; }
+    internal static MGLDelegates.BindBuffer? BindBuffer { get; private set; }
     
-    public static MGLDelegates.BufferData? BufferData { get; private set; }
+    internal static MGLDelegates.BufferData? BufferData { get; private set; }
     
-    public static MGLDelegates.BufferSubData? BufferSubData { get; private set; }
+    internal static MGLDelegates.BufferSubData? BufferSubData { get; private set; }
     
-    public static MGLDelegates.EnableVertexAttribArray? EnableVertexAttribArray { get; private set; }
+    internal static MGLDelegates.EnableVertexAttribArray? EnableVertexAttribArray { get; private set; }
     
-    public static MGLDelegates.DisableVertexAttribArray? DisableVertexAttribArray { get; private set; }
+    internal static MGLDelegates.DisableVertexAttribArray? DisableVertexAttribArray { get; private set; }
     
-    public static MGLDelegates.VertexAttribPointer? VertexAttribPointer { get; private set; }
+    internal static MGLDelegates.VertexAttribPointer? VertexAttribPointer { get; private set; }
 
-    public static MGLDelegates.CreateProgram? CreateProgram { get; private set; }
+    internal static MGLDelegates.CreateProgram? CreateProgram { get; private set; }
     
-    public static MGLDelegates.AttachShader? AttachShader { get; private set; }
+    internal static MGLDelegates.AttachShader? AttachShader { get; private set; }
     
-    public static MGLDelegates.DetachShader? DetachShader { get; private set; }
+    internal static MGLDelegates.DetachShader? DetachShader { get; private set; }
     
-    public static MGLDelegates.LinkProgram? LinkProgram { get; private set; }
+    internal static MGLDelegates.LinkProgram? LinkProgram { get; private set; }
     
-    public static MGLDelegates.ValidateProgram? ValidateProgram { get; private set; }
+    internal static MGLDelegates.ValidateProgram? ValidateProgram { get; private set; }
     
-    public static MGLDelegates.UseProgram? UseProgram { get; private set; }
+    internal static MGLDelegates.UseProgram? UseProgram { get; private set; }
     
-    public static MGLDelegates.DeleteShader? DeleteShader { get; private set; }
+    internal static MGLDelegates.DeleteShader? DeleteShader { get; private set; }
     
-    public static MGLDelegates.DeleteProgram? DeleteProgram { get; private set; }
+    internal static MGLDelegates.DeleteProgram? DeleteProgram { get; private set; }
     
-    public static MGLDelegates.BindAttribLocation? BindAttribLocation { get; private set; }
+    internal static MGLDelegates.BindAttribLocation? BindAttribLocation { get; private set; }
     
-    public static MGLDelegates.Uniform1? Uniform1 { get; private set; }
+    internal static MGLDelegates.Uniform1? Uniform1 { get; private set; }
     
-    public static MGLDelegates.Uniform1Int? Uniform1Int { get; private set; }
+    internal static MGLDelegates.Uniform1Int? Uniform1Int { get; private set; }
     
-    public static MGLDelegates.Uniform2? Uniform2 { get; private set; }
+    internal static MGLDelegates.Uniform2? Uniform2 { get; private set; }
     
-    public static MGLDelegates.Uniform2Int? Uniform2Int { get; private set; }
+    internal static MGLDelegates.Uniform2Int? Uniform2Int { get; private set; }
     
-    public static MGLDelegates.Uniform3? Uniform3 { get; private set; }
+    internal static MGLDelegates.Uniform3? Uniform3 { get; private set; }
     
-    public static MGLDelegates.Uniform3Int? Uniform3Int { get; private set; }
+    internal static MGLDelegates.Uniform3Int? Uniform3Int { get; private set; }
     
-    public static MGLDelegates.Uniform4? Uniform4 { get; private set; }
+    internal static MGLDelegates.Uniform4? Uniform4 { get; private set; }
     
-    public static MGLDelegates.Uniform4Int? Uniform4Int { get; private set; }
+    internal static MGLDelegates.Uniform4Int? Uniform4Int { get; private set; }
     
-    public static MGLDelegates.UniformMatrix4x4? UniformMatrix4x4 { get; private set; }
+    internal static MGLDelegates.UniformMatrix4x4? UniformMatrix4x4 { get; private set; }
     
-    public static MGLDelegates.GetUniformLocation? GetUniformLocation { get; private set; }
+    internal static MGLDelegates.GetUniformLocation? GetUniformLocation { get; private set; }
     
-    public static MGLDelegates.CreateShader? CreateShader { get; private set; }
+    internal static MGLDelegates.CreateShader? CreateShader { get; private set; }
     
-    public static MGLDelegates.ShaderSource? ShaderSource { get; private set; }
+    internal static MGLDelegates.ShaderSource? ShaderSource { get; private set; }
     
-    public static MGLDelegates.CompileShader? CompileShader { get; private set; }
+    internal static MGLDelegates.CompileShader? CompileShader { get; private set; }
     
-    public static MGLDelegates.GetShaderIntVector? GetShaderIntVector { get; private set; }
+    internal static MGLDelegates.GetShaderIntVector? GetShaderIntVector { get; private set; }
     
-    public static MGLDelegates.GetShaderInfoLog? GetShaderInfoLog { get; private set; }
+    internal static MGLDelegates.GetShaderInfoLog? GetShaderInfoLog { get; private set; }
 
-    public static void StoreBufferData<T>(BufferType target, T[] data, BufferUsage usage) where T : struct
+    internal static void StoreBufferData<T>(BufferType target, T[] data, BufferUsage usage) where T : struct
     {
         var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
         try
@@ -102,7 +102,7 @@ public static class MGL
         }
     }
     
-    public static void StoreBufferSubsetData<T>(BufferType target, IntPtr offset, T[] data) where T : struct
+    internal static void StoreBufferSubsetData<T>(BufferType target, IntPtr offset, T[] data) where T : struct
     {
         var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
         try
@@ -117,12 +117,12 @@ public static class MGL
         }
     }
     
-    public static void ShaderSourceParams(uint shader, params string[] source)
+    internal static void ShaderSourceParams(uint shader, params string[] source)
     {
         ShaderSource?.Invoke(shader, source.Length, source, null);
     }
     
-    public static string GetShaderLog(uint shader)
+    internal static string GetShaderLog(uint shader)
     {
         if (!FunctionsAreLoaded)
         {
@@ -138,7 +138,7 @@ public static class MGL
         return stringBuilder.ToString();
     }
 
-    public static void LoadFunctions()
+    internal static void LoadFunctions()
     {
         ChoosePixelFormat = GetProcAddress<MGLDelegates.ChoosePixelFormat>("wglChoosePixelFormatARB");
         
@@ -227,7 +227,7 @@ public static class MGL
 
         if (address == IntPtr.Zero)
         {
-            throw new Exception(procName);
+            throw new Exception($"Failed to get \"{procName}\" address.");
         }
         
         return Marshal.GetDelegateForFunctionPointer<T>(address);

@@ -15,8 +15,8 @@ internal static class GDI32
         ref PixelFormatDescriptor pixelFormatDescriptor);
 
     [DllImport(GDI32DLL, SetLastError = true)]
-    internal static extern int DescribePixelFormat(IntPtr hDeviceContext, int iPixelFormat, int bytes,
-        out PixelFormatDescriptor pixelFormatDescriptor);
+    internal static extern int DescribePixelFormat(IntPtr hDeviceContext, int iPixelFormat, uint bytes,
+        ref PixelFormatDescriptor pixelFormatDescriptor);
 
     [DllImport(GDI32DLL)]
     internal static extern int SwapBuffers(IntPtr hDeviceContext);

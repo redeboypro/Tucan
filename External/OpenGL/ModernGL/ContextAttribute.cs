@@ -1,6 +1,6 @@
 ﻿namespace Tucan.External.OpenGL.ModernGL;
 
-public enum ContextAttribute
+internal enum ContextAttribute
 {
     MajorVersion = 0x2091,
     MinorVersion = 0x2092,

@@ -215,20 +215,20 @@ public sealed class Mesh
 
     public void Draw(CullFaceMode cullFaceMode = CullFaceMode.Back)
     {
-        MGL.BindVertexArray?.Invoke(VertexArrayObject.Id);
+        GL.BindVertexArray(VertexArrayObject.Id);
         {
-            MGL.EnableVertexAttribArray?.Invoke(_vertexArrayAttribLocation);
-            MGL.EnableVertexAttribArray?.Invoke(_uvArrayAttribLocation);
-            MGL.EnableVertexAttribArray?.Invoke(_normalArrayAttribLocation);
+            GL.EnableVertexAttribArray(_vertexArrayAttribLocation);
+            GL.EnableVertexAttribArray(_uvArrayAttribLocation);
+            GL.EnableVertexAttribArray(_normalArrayAttribLocation);
             
             GL.CullFace(cullFaceMode);
             GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
                 
-            MGL.DisableVertexAttribArray?.Invoke(_vertexArrayAttribLocation);
-            MGL.DisableVertexAttribArray?.Invoke(_uvArrayAttribLocation);
-            MGL.DisableVertexAttribArray?.Invoke(_normalArrayAttribLocation);
+            GL.DisableVertexAttribArray(_vertexArrayAttribLocation);
+            GL.DisableVertexAttribArray(_uvArrayAttribLocation);
+            GL.DisableVertexAttribArray(_normalArrayAttribLocation);
         }
-        MGL.BindVertexArray?.Invoke(0);
+        GL.BindVertexArray(0);
     }
 
     ~Mesh()

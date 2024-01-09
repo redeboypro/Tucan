@@ -35,20 +35,20 @@ public struct VBO : IBO
 
     public void Create<T>(T[] data) where T : struct
     {
-        MGL.GenBuffer?.Invoke(1, out _id);
-        MGL.BindBuffer(BufferType.ArrayBuffer, _id);
-        MGL.StoreBufferData(BufferType.ArrayBuffer, data, _bufferUsage);
-        MGL.VertexAttribPointer?.Invoke(AttributeLocation, Dimension, _attribPointerType, false, 0, IntPtr.Zero);
+        GL.GenBuffer(out _id);
+        GL.BindBuffer(BufferType.ArrayBuffer, _id);
+        GL.StoreBufferData(BufferType.ArrayBuffer, data, _bufferUsage);
+        GL.VertexAttribPointer(AttributeLocation, Dimension, _attribPointerType, false, 0, IntPtr.Zero);
     }
         
     public void Update<T>(T[] data) where T : struct
     {
-        MGL.BindBuffer(BufferType.ArrayBuffer, _id);
-        MGL.StoreBufferSubsetData(BufferType.ArrayBuffer, IntPtr.Zero, data);
+        GL.BindBuffer(BufferType.ArrayBuffer, _id);
+        GL.StoreBufferSubsetData(BufferType.ArrayBuffer, IntPtr.Zero, data);
     }
         
     public void Delete()
     {
-        MGL.DeleteBuffers?.Invoke(1, _id);
+        GL.DeleteBuffer(_id);
     }
 }

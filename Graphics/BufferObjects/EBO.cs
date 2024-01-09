@@ -24,19 +24,19 @@ public struct EBO : IBO
 
     public void Create<T>(T[] data) where T : struct
     {
-        MGL.GenBuffer?.Invoke(1, out _id);
-        MGL.BindBuffer(BufferType.ElementArrayBuffer, _id);
-        MGL.StoreBufferData(BufferType.ElementArrayBuffer, data, _bufferUsage);
+        GL.GenBuffer(out _id);
+        GL.BindBuffer(BufferType.ElementArrayBuffer, _id);
+        GL.StoreBufferData(BufferType.ElementArrayBuffer, data, _bufferUsage);
     }
         
     public readonly void Update<T>(T[] data) where T : struct
     {
-        MGL.BindBuffer(BufferType.ElementArrayBuffer, _id);
-        MGL.StoreBufferSubsetData(BufferType.ElementArrayBuffer, IntPtr.Zero, data);
+        GL.BindBuffer(BufferType.ElementArrayBuffer, _id);
+        GL.StoreBufferSubsetData(BufferType.ElementArrayBuffer, IntPtr.Zero, data);
     }
         
     public readonly void Delete()
     {
-        MGL.DeleteBuffers?.Invoke(1, _id);
+        GL.DeleteBuffer(_id);
     }
 }

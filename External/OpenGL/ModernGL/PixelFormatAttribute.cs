@@ -1,6 +1,6 @@
 ﻿namespace Tucan.External.OpenGL.ModernGL;
 
-public enum PixelFormatAttribute
+internal enum PixelFormatAttribute
 {
     DrawToWindowArb = 0x2001,
     SupportOpenGLArb = 0x2010,
