@@ -67,7 +67,7 @@ public static class InputManager
     {
         _currentKeyStates = new SortedList<int, bool>();
         _lastKeyStates = new SortedList<int, bool>();
-        for (var i = 0; i < 256; i++)
+        for (var i = 0; i < KeyCount; i++)
         {
             _currentKeyStates[i] = _lastKeyStates[i] = false;
         }
@@ -75,7 +75,7 @@ public static class InputManager
 
     internal static void BeginFrame(ref IntPtr window)
     {
-        for (var i = 0; i < 256; i++)
+        for (var i = 0; i < KeyCount; i++)
         {
             if (_lastKeyStates != null)
             {
