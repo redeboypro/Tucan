@@ -12,8 +12,13 @@ public sealed class Mesh
     public const uint DefaultVertexArrayAttribLocation = 0;
     public const uint DefaultUVArrayAttribLocation = 1;
     public const uint DefaultNormalArrayAttribLocation = 2;
-    
+
     public readonly VAO VertexArrayObject;
+    
+    public readonly VBO VertexBuffer;
+    public readonly VBO UVBuffer;
+    public readonly VBO NormalBuffer;
+    public readonly VBO ElementBuffer;
 
     private readonly uint _vertexArrayAttribLocation;
     private readonly uint _uvArrayAttribLocation;
@@ -35,9 +40,30 @@ public sealed class Mesh
     public Mesh(
         uint vertexArrayAttribLocation = DefaultVertexArrayAttribLocation,
         uint uvArrayAttribLocation = DefaultUVArrayAttribLocation,
-        uint normalArrayAttribLocation = DefaultNormalArrayAttribLocation)
+        uint normalArrayAttribLocation = DefaultNormalArrayAttribLocation,
+        BufferUsage vertexBufferUsage = BufferUsage.StaticDraw,
+        BufferUsage uvBufferUsage = BufferUsage.StaticDraw,
+        BufferUsage normalBufferUsage = BufferUsage.StaticDraw,
+        BufferUsage elementBufferUsage = BufferUsage.StaticDraw)
     {
         VertexArrayObject = new VAO();
+        VertexArrayObject.Use();
+        {
+            VertexBuffer = new VBO(BufferType.ArrayBuffer, vertexBufferUsage);
+            VertexBuffer.Use();
+            GL.VertexAttribPointer(vertexArrayAttribLocation, 3, PointerType.Float, false, 0, IntPtr.Zero);
+            
+            UVBuffer = new VBO(BufferType.ArrayBuffer, uvBufferUsage);
+            UVBuffer.Use();
+            GL.VertexAttribPointer(vertexArrayAttribLocation, 2, PointerType.Float, false, 0, IntPtr.Zero);
+            
+            NormalBuffer = new VBO(BufferType.ArrayBuffer, normalBufferUsage);
+            NormalBuffer.Use();
+            GL.VertexAttribPointer(vertexArrayAttribLocation, 3, PointerType.Float, false, 0, IntPtr.Zero);
+            
+            ElementBuffer = new VBO(BufferType.ElementArrayBuffer, elementBufferUsage);
+        }
+        VAO.None();
 
         _vertexArrayAttribLocation = vertexArrayAttribLocation;
         _uvArrayAttribLocation = uvArrayAttribLocation;
@@ -58,16 +84,22 @@ public sealed class Mesh
         set
         {
             _vertices = value ?? throw new ArgumentException("Invalid vertices.");
+            
+            VertexArrayObject.Use();
 
             if (!_verticesBufferIsDirty)
             {
-                VertexArrayObject.CreateVertexBufferObject(_vertexArrayAttribLocation, 3, _vertices);
+                VertexBuffer.Use();
+                VertexBuffer.StoreData(_vertices);
+                VAO.None();
                 _verticesBufferIsDirty = true;
                 RecalculateBounds();
                 return;
             }
 
-            VertexArrayObject.UpdateVertexBufferObject(_vertexArrayAttribLocation, _vertices);
+
+            VertexBuffer.StoreSubsetData(_vertices, IntPtr.Zero);
+            VAO.None();
             RecalculateBounds();
         }
     }
@@ -81,15 +113,20 @@ public sealed class Mesh
         set
         {
             _uv = value ?? throw new ArgumentException("Invalid uv.");
+            
+            VertexArrayObject.Use();
 
             if (!_uvBufferIsDirty)
             {
-                VertexArrayObject.CreateVertexBufferObject(_uvArrayAttribLocation, 2, _uv);
+                UVBuffer.Use();
+                UVBuffer.StoreData(_uv);
+                VAO.None();
                 _uvBufferIsDirty = true;
                 return;
             }
-
-            VertexArrayObject.UpdateVertexBufferObject(_uvArrayAttribLocation, _uv);
+            
+            UVBuffer.StoreSubsetData(_uv, IntPtr.Zero);
+            VAO.None();
         }
     }
 
@@ -102,15 +139,20 @@ public sealed class Mesh
         set
         {
             _normals = value ?? throw new ArgumentException("Invalid normals.");
+            
+            VertexArrayObject.Use();
 
             if (!_normalsBufferIsDirty)
             {
-                VertexArrayObject.CreateVertexBufferObject(_normalArrayAttribLocation, 3, _normals);
+                NormalBuffer.Use();
+                NormalBuffer.StoreData(_normals);
+                VAO.None();
                 _normalsBufferIsDirty = true;
                 return;
             }
-
-            VertexArrayObject.UpdateVertexBufferObject(_normalArrayAttribLocation, _normals);
+            
+            NormalBuffer.StoreSubsetData(_normals, IntPtr.Zero);
+            VAO.None();
         }
     }
 
@@ -123,15 +165,20 @@ public sealed class Mesh
         set
         {
             _indices = value ?? throw new ArgumentException("Invalid indices.");
+            
+            VertexArrayObject.Use();
 
             if (!_indicesBufferIsDirty)
             {
-                VertexArrayObject.CreateElementBufferObject(_indices);
+                ElementBuffer.Use();
+                ElementBuffer.StoreData(_indices);
+                VAO.None();
                 _indicesBufferIsDirty = true;
                 return;
             }
 
-            VertexArrayObject.UpdateElementBufferObject(_indices);
+            ElementBuffer.StoreSubsetData(_indices, IntPtr.Zero);
+            VAO.None();
         }
     }
 

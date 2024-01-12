@@ -99,13 +99,13 @@ public sealed class Display
         User32.UpdateWindow(_hWindow);
     }
 
-    public bool ProcessMessages()
+    public bool ShouldClose()
     {
         while (User32.PeekMessage(out var message, _hWindow, 0u, 0u, _settings.PeekMessageOptions))
         {
             if (message.Message is WindowMessage.Quit)
             {
-                return false;
+                return true;
             }
 
             User32.TranslateMessage(ref message);
@@ -127,7 +127,7 @@ public sealed class Display
 
         InputManager.BeginFrame(ref _hWindow);
         GL.MakeCurrent(_hDeviceContext, _hRenderContext);
-        return true;
+        return false;
     }
 
     public void Destroy()

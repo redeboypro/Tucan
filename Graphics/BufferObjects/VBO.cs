@@ -3,26 +3,37 @@ using Tucan.External.OpenGL.ModernGL;
 
 namespace Tucan.Graphics.BufferObjects;
 
-public struct VBO : IBO
+public readonly struct VBO
 {
-    public readonly uint AttributeLocation;
-    public readonly int Dimension;
-
+    private readonly BufferType _bufferType;
     private readonly BufferUsage _bufferUsage;
-    private readonly PointerType _attribPointerType;
-    private uint _id;
+    private readonly uint _id;
 
     public VBO(
-        uint attributeLocation,
-        int dimension,
-        PointerType pointerType = PointerType.Float,
-        BufferUsage bufferUsage = BufferUsage.DynamicDraw)
+        BufferType bufferType,
+        BufferUsage bufferUsage = BufferUsage.StaticDraw)
     {
-        AttributeLocation = attributeLocation;
-        Dimension = dimension;
+        _bufferType = bufferType;
         _bufferUsage = bufferUsage;
-        _attribPointerType = pointerType;
         _id = 0;
+        
+        GL.GenBuffer(out _id);
+    }
+
+    public BufferType BufferType
+    {
+        get
+        {
+            return _bufferType;
+        }
+    }
+    
+    public BufferUsage BufferUsage
+    {
+        get
+        {
+            return _bufferUsage;
+        }
     }
 
     public uint Id
@@ -33,22 +44,30 @@ public struct VBO : IBO
         }
     }
 
-    public void Create<T>(T[] data) where T : struct
+    public void StoreData<T>(T[] data) where T : struct
     {
-        GL.GenBuffer(out _id);
-        GL.BindBuffer(BufferType.ArrayBuffer, _id);
-        GL.StoreBufferData(BufferType.ArrayBuffer, data, _bufferUsage);
-        GL.VertexAttribPointer(AttributeLocation, Dimension, _attribPointerType, false, 0, IntPtr.Zero);
+        GL.BindBuffer(_bufferType, _id);
+        GL.StoreBufferData(_bufferType, data, _bufferUsage);
     }
         
-    public void Update<T>(T[] data) where T : struct
+    public void StoreSubsetData<T>(T[] data, IntPtr offset) where T : struct
     {
-        GL.BindBuffer(BufferType.ArrayBuffer, _id);
-        GL.StoreBufferSubsetData(BufferType.ArrayBuffer, IntPtr.Zero, data);
+        GL.BindBuffer(_bufferType, _id);
+        GL.StoreBufferSubsetData(_bufferType, offset, data);
+    }
+
+    public void Use()
+    {
+        GL.BindBuffer(_bufferType, _id);
     }
         
     public void Delete()
     {
         GL.DeleteBuffer(_id);
+    }
+    
+    public static void None(BufferType bufferType)
+    {
+        GL.BindBuffer(bufferType, 0);
     }
 }
