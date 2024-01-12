@@ -8,7 +8,7 @@ public struct EBO : IBO
     private readonly BufferUsage _bufferUsage;
     private uint _id;
 
-    public EBO(BufferUsage bufferUsage)
+    public EBO(BufferUsage bufferUsage = BufferUsage.DynamicDraw)
     {
         _bufferUsage = bufferUsage;
         _id = 0;

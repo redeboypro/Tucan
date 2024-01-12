@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using Tucan.Input;
 
 namespace Tucan.External.HiddenFeatures;
 
@@ -69,4 +70,19 @@ internal static class User32
         [In] uint   message,
         [In] IntPtr wParam,
         [In] IntPtr lParam); 
+    
+    [DllImport(USR32DLL)]
+    internal static extern short GetAsyncKeyState([In] int key);
+    
+    [DllImport(USR32DLL)]
+    internal static extern short GetAsyncKeyState([In] KeyCode key);
+    
+    [DllImport(USR32DLL)]
+    internal static extern short GetAsyncKeyState([In] char key);
+    
+    [DllImport(USR32DLL)]
+    internal static extern short GetCursorPos(ref Point cursorPoint);
+    
+    [DllImport(USR32DLL)]
+    internal static extern short ScreenToClient([In] IntPtr hWindow, ref Point cursorPoint);
 }

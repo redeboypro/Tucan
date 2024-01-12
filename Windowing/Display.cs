@@ -1,8 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Tucan.External;
 using Tucan.External.HiddenFeatures;
 using Tucan.External.OpenGL;
 using Tucan.External.OpenGL.ModernGL;
+using Tucan.Input;
 
 namespace Tucan.Windowing;
 
@@ -10,14 +12,35 @@ public delegate void WindowMessageCallbackDel(WindowMessage message);
 
 public sealed class Display
 {
+    private const float TicksToMilliseconds = 0.0000001f;
+    
     private readonly IntPtr _hInstance;
     private readonly DisplaySettings _settings;
-    private readonly IntPtr _hWindow;
+    private IntPtr _hWindow;
     private IntPtr _hDeviceContext;
     private IntPtr _hRenderContext;
+    
+    private DateTime _lastTime;
+    private DateTime _currentTime;
+    
+    private float _frameTime;
+    private int _frameRecorder;
+
+    private float _deltaTime;
+    private int _framesPerSecond;
 
     public Display(DisplaySettings settings, int coreMajorVersion, int coreMinorVersion)
     {
+        _lastTime = DateTime.Now;
+        _currentTime = DateTime.Now;
+        _frameTime = 0.0f;
+        _frameRecorder = 0;
+        
+        _deltaTime = Single.Epsilon;
+        _framesPerSecond = 0;
+        
+        InputManager.InitializeKeyStates();
+        
         _hInstance = Marshal.GetHINSTANCE(GetType().Module);
         _settings = settings;
 
@@ -51,7 +74,100 @@ public sealed class Display
 
         GL.MakeCurrent(_hDeviceContext, _hRenderContext);
     }
+    
+    public float DeltaTime
+    {
+        get
+        {
+            return _deltaTime;
+        }
+    }
 
+    public int FramesPerSecond
+    {
+        get
+        {
+            return _framesPerSecond;
+        }
+    }
+
+    public WindowMessageCallbackDel? MessageCallback { get; set; }
+
+    public void Show()
+    {
+        User32.ShowWindow(_hWindow, 1);
+        User32.UpdateWindow(_hWindow);
+    }
+
+    public bool ProcessMessages()
+    {
+        while (User32.PeekMessage(out var message, _hWindow, 0u, 0u, _settings.PeekMessageOptions))
+        {
+            if (message.Message is WindowMessage.Quit)
+            {
+                return false;
+            }
+
+            User32.TranslateMessage(ref message);
+            User32.DispatchMessage(ref message);
+        }
+        
+        _currentTime = DateTime.Now;
+        _deltaTime = (_currentTime.Ticks - _lastTime.Ticks) * TicksToMilliseconds;
+            
+        _frameTime += _deltaTime;
+        _frameRecorder++;
+
+        if (_frameTime >= 1.0f)
+        {
+            _framesPerSecond = _frameRecorder;
+            _frameTime = 0.0f;
+            _frameRecorder = 0;
+        }
+
+        InputManager.BeginFrame(ref _hWindow);
+        GL.MakeCurrent(_hDeviceContext, _hRenderContext);
+        return true;
+    }
+
+    public void Destroy()
+    {
+        User32.DestroyWindow(_hWindow);
+    }
+
+    public void Update()
+    {
+        _lastTime = _currentTime;
+        InputManager.EndFrame();
+        SwapBuffers();
+    }
+
+    public void Release()
+    {
+        User32.UnregisterClass(_settings.ClassName, _hInstance);
+        
+        if (_hRenderContext != IntPtr.Zero) 
+        {
+            GL.MakeCurrent(_hDeviceContext, IntPtr.Zero);
+            GL.DeleteContext(_hRenderContext);
+            _hRenderContext = IntPtr.Zero;
+        }
+
+        if (_hDeviceContext == IntPtr.Zero)
+        {
+            return;
+        }
+        
+        User32.ReleaseDC(_hWindow, _hDeviceContext);
+        _hDeviceContext = IntPtr.Zero;
+    }
+
+    ~Display()
+    {
+        Destroy();
+        Release();
+    }
+    
     private IntPtr InitializeGL(IntPtr hDeviceContext, int coreMajorVersion, int coreMinorVersion)
     {
         InitializeExtensions();
@@ -176,68 +292,6 @@ public sealed class Display
         }
     }
     
-    public WindowMessageCallbackDel? MessageCallback { get; set; }
-
-    public void Show()
-    {
-        User32.ShowWindow(_hWindow, 1);
-        User32.UpdateWindow(_hWindow);
-    }
-
-    public bool ProcessMessages()
-    {
-        while (User32.PeekMessage(out var message, _hWindow, 0u, 0u, _settings.PeekMessageOptions))
-        {
-            if (message.Message is WindowMessage.Quit)
-            {
-                return false;
-            }
-
-            User32.TranslateMessage(ref message);
-            User32.DispatchMessage(ref message);
-        }
-
-        GL.MakeCurrent(_hDeviceContext, _hRenderContext);
-        return true;
-    }
-
-    public void Destroy()
-    {
-        User32.DestroyWindow(_hWindow);
-    }
-
-    public void SwapBuffers()
-    {
-        GL.Flush();
-        GDI32.SwapBuffers(_hDeviceContext);
-    }
-
-    public void Release()
-    {
-        User32.UnregisterClass(_settings.ClassName, _hInstance);
-        
-        if (_hRenderContext != IntPtr.Zero) 
-        {
-            GL.MakeCurrent(_hDeviceContext, IntPtr.Zero);
-            GL.DeleteContext(_hRenderContext);
-            _hRenderContext = IntPtr.Zero;
-        }
-
-        if (_hDeviceContext == IntPtr.Zero)
-        {
-            return;
-        }
-        
-        User32.ReleaseDC(_hWindow, _hDeviceContext);
-        _hDeviceContext = IntPtr.Zero;
-    }
-
-    ~Display()
-    {
-        Destroy();
-        Release();
-    }
-    
     private ushort RegisterDisplayClass(
         IntPtr hInstance,
         ClassStyle windowClassStyle,
@@ -320,5 +374,11 @@ public sealed class Display
     {
         MessageCallback?.Invoke((WindowMessage) message);
         return User32.DefWindowProc(hWindow, message, wParam, lParam);
+    }
+    
+    private void SwapBuffers()
+    {
+        GL.Flush();
+        GDI32.SwapBuffers(_hDeviceContext);
     }
 }

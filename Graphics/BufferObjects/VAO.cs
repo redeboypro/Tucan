@@ -15,7 +15,7 @@ public sealed class VAO
         GL.GenVertexArray(out _id);
         
         _vertexBufferObjects = new Dictionary<uint, VBO>();
-        _elementBufferObject = new EBO();
+        _elementBufferObject = new EBO(BufferUsage.DynamicDraw);
     }
 
     ~VAO()
@@ -59,20 +59,13 @@ public sealed class VAO
 
     public void CreateElementBufferObject<T>(T[] data) where T : struct
     {
-        Bind();
-        {
-            _elementBufferObject.Create(data);
-        }
-        Unbind();
+
+        _elementBufferObject.Create(data);
     }
         
     public void UpdateElementBufferObject<T>(T[] data) where T : struct
     {
-        Bind();
-        {
-            _elementBufferObject.Update(data);
-        }
-        Unbind();
+        _elementBufferObject.Update(data);
     }
         
     public void CreateVertexBufferObject<T>(
@@ -86,13 +79,9 @@ public sealed class VAO
             throw new Exception($"VAO: VBO ({attributeLocation}) is already instantiated!");
         }
         
-        Bind();
-        {
-            var vbo = new VBO(attributeLocation, dimension, pointerType);
-            vbo.Create(data);
-            _vertexBufferObjects.Add(attributeLocation, vbo);
-        }
-        Unbind();
+        var vbo = new VBO(attributeLocation, dimension, pointerType);
+        vbo.Create(data);
+        _vertexBufferObjects.Add(attributeLocation, vbo);
     }
 
     public void UpdateVertexBufferObject<T>(uint attributeLocation, T[] data) where T : struct
@@ -102,11 +91,8 @@ public sealed class VAO
             throw new Exception($"VAO: VBO ({attributeLocation}) is not instantiated!");
         }
         
-        Bind();
-        {
-            vbo.Update(data);
-        }
-        Unbind();
+        vbo.Update(data);
+
     }
 
     public void Delete()
