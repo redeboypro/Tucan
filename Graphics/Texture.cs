@@ -18,9 +18,7 @@ public sealed class Texture
         TextureWrapMode wrapT = TextureWrapMode.Repeat)
     {
         if (!File.Exists(filePath))
-        {
             throw new FileNotFoundException($"File not found: {filePath}");
-        }
 
         using var fileStream = new FileStream(filePath, FileMode.Open);
         
@@ -75,9 +73,7 @@ public sealed class Texture
         var index = (y * Width + x) * 4;
         
         if (index < 0 || index >= _pixelData.Length - 3)
-        {
             throw new Exception("Invalid pixel coordinates");
-        }
         
         _pixelData[index] = color.B;
         _pixelData[index + 1] = color.G;
@@ -90,9 +86,7 @@ public sealed class Texture
         var index = (y * Width + x) * 4;
         
         if (index < 0 || index >= _pixelData.Length - 3)
-        {
             throw new Exception("Invalid pixel coordinates");
-        }
 
         Color resultColor;
         {

@@ -40,10 +40,7 @@ public sealed class Lightmap
                 {
                     var pixelUV = new Vector2(X / (float) Width, Y / (float) Height);
 
-                    if (!IsPointInPolygon(triangle.UV, pixelUV))
-                    {
-                        continue;
-                    }
+                    if (!IsPointInPolygon(triangle.UV, pixelUV)) continue;
                     
                     var diff = MathF.Max(Vector3.Dot(triangle.A.Normal, -_lightDirection), 0.0f) + 0.6f;
                     _texture.SetPixel(X, Y, new Color(diff, diff, diff, 1.0f));
@@ -58,15 +55,10 @@ public sealed class Lightmap
         {
             foreach (var triangleB in _triangles)
             {
-                if (triangleA == triangleB)
-                {
-                    continue;
-                }
-
+                if (triangleA == triangleB) continue;
+                
                 if (TryGetProjectedUV(triangleA, triangleB, out var projectedUV))
-                {
                     ShadeArea(projectedUV, triangleB);
-                }
             }
         }
     }
@@ -86,9 +78,7 @@ public sealed class Lightmap
                 var pixelUV = new Vector2(X / (float) Width, Y / (float) Height);
 
                 if (IsPointInPolygon(projectedUV, pixelUV) && IsPointInPolygon(triangle.UV, pixelUV))
-                {
                     _texture.SetPixel(X, Y, _shadowColor);
-                }
             }
         }
     }
@@ -103,10 +93,7 @@ public sealed class Lightmap
 
         projectedUV = new List<Vector2>();
 
-        if (MathF.Abs(denominator0) <= MathF.Epsilon)
-        {
-            return false;
-        }
+        if (MathF.Abs(denominator0) <= MathF.Epsilon) return false;
 
         var i = 0;
         for (var a = 0; a < 3; a++)
@@ -122,34 +109,22 @@ public sealed class Lightmap
             {
                 i++;
 
-                if (i == 3)
-                {
-                    return false;
-                }
+                if (i == 3) return false;
 
                 for (var b = 0; b < 3; b++)
                 {
-                    if (a == b)
-                    {
-                        continue;
-                    }
+                    if (a == b) continue;
                     
                     var bOrigin = triangleA[b].Origin;
                     var bDirection = Vector3.Normalize(aOrigin - bOrigin);
 
                     var denominator1 = Vector3.Dot(planeNormal, bDirection);
 
-                    if (MathF.Abs(denominator1) <= MathF.Epsilon)
-                    {
-                        continue;
-                    }
+                    if (MathF.Abs(denominator1) <= MathF.Epsilon) continue;
         
                     var t1 = Vector3.Dot(planeCenter - bOrigin, planeNormal) / denominator1;
             
-                    if (t1 < 0)
-                    {
-                        continue;
-                    }
+                    if (t1 < 0) continue;
             
                     intersectionPoint = bOrigin + bDirection * t1;
                     barycentricCoordinates = CalculateBarycentric(intersectionPoint, triangleB);
@@ -164,10 +139,7 @@ public sealed class Lightmap
             projectedUV.Add(CalculateUV(barycentricCoordinates, triangleB));
         }
 
-        if (i > 0)
-        {
-            projectedUV = SortPolygonPoints(projectedUV);
-        }
+        if (i > 0) projectedUV = SortPolygonPoints(projectedUV);
 
         return projectedUV.Count >= 3;
     }
@@ -191,9 +163,7 @@ public sealed class Lightmap
         {
             var angle = MathF.Atan2(vertex.Y - centroid.Y, vertex.X - centroid.X);
             if (!angles.ContainsKey(vertex))
-            {
                 angles.Add(vertex, angle);
-            }
         }
         
         vertices.Sort((v1, v2) => angles[v1].CompareTo(angles[v2]));
@@ -220,20 +190,12 @@ public sealed class Lightmap
             var v2 = polygon[(i + 1) % polygon.Count];
             var d = CalculateDirection(testPoint, v1, v2);
             
-            if (d < -_bias)
-            {
-                hasNegative = true; 
-            }
-            
-            if (d > _bias)
-            {
+            if (d < -_bias) 
+                hasNegative = true;
+            if (d > _bias) 
                 hasPositive = true;
-            }
-
-            if (hasPositive && hasNegative)
-            {
-                return false;
-            }
+            
+            if (hasPositive && hasNegative) return false;
         }
 
         return true;
@@ -270,9 +232,7 @@ public sealed class Lightmap
         var uvCoordinates = Vector2.Zero;
 
         for (var i = 0; i < 3; i++)
-        {
             uvCoordinates += triangle[i].UV * barycentricCoordinates[i];
-        }
 
         return uvCoordinates;
     }

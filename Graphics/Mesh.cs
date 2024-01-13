@@ -246,11 +246,6 @@ public sealed class Mesh
         VAO.None();
     }
 
-    ~Mesh()
-    {
-        VertexArrayObject.Delete();
-    }
-
     public static Mesh Plane(
         uint vertexArrayAttribLocation = DefaultVertexArrayAttribLocation,
         uint uvArrayAttribLocation = DefaultUVArrayAttribLocation,
