@@ -106,12 +106,17 @@ public sealed class Texture
 
     public void Apply()
     {
-        GL.BindTexture(TextureTarget.Texture2D, _id);
+        Use();
         {
             GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, PixelFormat.Bgra,
                 PointerType.UnsignedByte, _pixelData);
         }
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        None();
+    }
+
+    public void Use()
+    {
+        GL.BindTexture(TextureTarget.Texture2D, _id);
     }
 
     private void Initialize(
@@ -151,5 +156,10 @@ public sealed class Texture
     ~Texture()
     {
         Delete();
+    }
+    
+    public static void None()
+    {
+        GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 }

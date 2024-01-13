@@ -1,10 +1,12 @@
 ﻿using System.Collections;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace Tucan.Math;
 
 using Math = System.Math;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
 {
     public static readonly Vector3 Zero = new(0);
@@ -128,9 +130,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
         var magnitude = value.Length;
 
         if (magnitude > MathF.KEpsilon)
-        {
             return value / magnitude;
-        }
 
         return Zero;
     }
@@ -157,9 +157,7 @@ public struct Vector3 : IReadOnlyList<float>, IEquatable<Vector3>
     {
         var sqrLength = onNormal.LengthSqr;
         if (sqrLength < MathF.Epsilon)
-        {
             return Zero;
-        }
 
         var dot = Dot(vector, onNormal);
         return onNormal * dot / sqrLength;

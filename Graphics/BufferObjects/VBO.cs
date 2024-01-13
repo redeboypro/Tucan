@@ -1,23 +1,31 @@
 ﻿using Tucan.External.OpenGL;
-using Tucan.External.OpenGL.ModernGL;
 
 namespace Tucan.Graphics.BufferObjects;
 
-public readonly struct VBO
+public sealed class VBO : IDisposable
 {
-    private readonly BufferType _bufferType;
-    private readonly BufferUsage _bufferUsage;
-    private readonly uint _id;
+    private BufferType _bufferType;
+    private BufferUsage _bufferUsage;
+    private uint _id;
 
     public VBO(
+        BufferType bufferType,
+        BufferUsage bufferUsage = BufferUsage.StaticDraw) : 
+        this(GL.GenBuffer(), bufferType, bufferUsage) { }
+    
+    public VBO(
+        uint bufferId,
         BufferType bufferType,
         BufferUsage bufferUsage = BufferUsage.StaticDraw)
     {
         _bufferType = bufferType;
         _bufferUsage = bufferUsage;
-        _id = 0;
-        
-        GL.GenBuffer(out _id);
+        _id = bufferId;
+    }
+    
+    ~VBO()
+    {
+        ReleaseUnmanagedResources();
     }
 
     public BufferType BufferType
@@ -44,16 +52,22 @@ public readonly struct VBO
         }
     }
 
-    public void StoreData<T>(T[] data) where T : struct
+    public void StoreData<T>(T[] data, bool bindBuffer = true) where T : struct
     {
-        GL.BindBuffer(_bufferType, _id);
+        if (bindBuffer) Use();
+        
         GL.StoreBufferData(_bufferType, data, _bufferUsage);
+        
+        if (bindBuffer) None(_bufferType);
     }
         
-    public void StoreSubsetData<T>(T[] data, IntPtr offset) where T : struct
+    public void StoreSubsetData<T>(T[] data, IntPtr offset, bool bindBuffer = true) where T : struct
     {
-        GL.BindBuffer(_bufferType, _id);
+        if (bindBuffer) Use();
+        
         GL.StoreBufferSubsetData(_bufferType, offset, data);
+        
+        if (bindBuffer) None(_bufferType);
     }
 
     public void Use()
@@ -69,5 +83,19 @@ public readonly struct VBO
     public static void None(BufferType bufferType)
     {
         GL.BindBuffer(bufferType, 0);
+    }
+
+    private void ReleaseUnmanagedResources()
+    {
+        _bufferType = 0;
+        _bufferUsage = 0;
+        _id = 0;
+        Delete();
+    }
+
+    public void Dispose()
+    {
+        ReleaseUnmanagedResources();
+        GC.SuppressFinalize(this);
     }
 }

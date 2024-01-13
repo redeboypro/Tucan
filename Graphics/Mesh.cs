@@ -1,5 +1,4 @@
 ﻿using Tucan.External.OpenGL;
-using Tucan.External.OpenGL.ModernGL;
 using Tucan.Graphics.BufferObjects;
 using Tucan.Math;
 
@@ -15,10 +14,10 @@ public sealed class Mesh
 
     public readonly VAO VertexArrayObject;
     
-    public readonly VBO VertexBuffer;
-    public readonly VBO UVBuffer;
-    public readonly VBO NormalBuffer;
-    public readonly VBO ElementBuffer;
+    public readonly uint VertexBuffer;
+    public readonly uint UVBuffer;
+    public readonly uint NormalBuffer;
+    public readonly uint ElementBuffer;
 
     private readonly uint _vertexArrayAttribLocation;
     private readonly uint _uvArrayAttribLocation;
@@ -42,26 +41,21 @@ public sealed class Mesh
         uint uvArrayAttribLocation = DefaultUVArrayAttribLocation,
         uint normalArrayAttribLocation = DefaultNormalArrayAttribLocation,
         BufferUsage vertexBufferUsage = BufferUsage.StaticDraw,
-        BufferUsage uvBufferUsage = BufferUsage.StaticDraw,
-        BufferUsage normalBufferUsage = BufferUsage.StaticDraw,
         BufferUsage elementBufferUsage = BufferUsage.StaticDraw)
     {
-        VertexArrayObject = new VAO();
+        VertexArrayObject = new VAO(true);
         VertexArrayObject.Use();
         {
-            VertexBuffer = new VBO(BufferType.ArrayBuffer, vertexBufferUsage);
-            VertexBuffer.Use();
-            GL.VertexAttribPointer(vertexArrayAttribLocation, 3, PointerType.Float, false, 0, IntPtr.Zero);
+            var buffers = VertexArrayObject.GenBuffers(3, BufferType.ArrayBuffer, vertexBufferUsage, false);
+            VertexBuffer = buffers[0];
+            UVBuffer = buffers[1];
+            NormalBuffer = buffers[2];
             
-            UVBuffer = new VBO(BufferType.ArrayBuffer, uvBufferUsage);
-            UVBuffer.Use();
-            GL.VertexAttribPointer(vertexArrayAttribLocation, 2, PointerType.Float, false, 0, IntPtr.Zero);
+            VertexArrayObject.VertexAttribPointer(VertexBuffer, vertexArrayAttribLocation, 3, PointerType.Float, bindVertexArray:false);
+            VertexArrayObject.VertexAttribPointer(UVBuffer, uvArrayAttribLocation, 2, PointerType.Float, bindVertexArray:false);
+            VertexArrayObject.VertexAttribPointer(NormalBuffer, normalArrayAttribLocation, 3, PointerType.Float, bindVertexArray:false);
             
-            NormalBuffer = new VBO(BufferType.ArrayBuffer, normalBufferUsage);
-            NormalBuffer.Use();
-            GL.VertexAttribPointer(vertexArrayAttribLocation, 3, PointerType.Float, false, 0, IntPtr.Zero);
-            
-            ElementBuffer = new VBO(BufferType.ElementArrayBuffer, elementBufferUsage);
+            ElementBuffer = VertexArrayObject.GenBuffer(BufferType.ElementArrayBuffer, elementBufferUsage, false);
         }
         VAO.None();
 
@@ -84,22 +78,16 @@ public sealed class Mesh
         set
         {
             _vertices = value ?? throw new ArgumentException("Invalid vertices.");
-            
-            VertexArrayObject.Use();
 
             if (!_verticesBufferIsDirty)
             {
-                VertexBuffer.Use();
-                VertexBuffer.StoreData(_vertices);
-                VAO.None();
+                VertexArrayObject.StoreBufferData(VertexBuffer, _vertices);
                 _verticesBufferIsDirty = true;
                 RecalculateBounds();
                 return;
             }
-
-
-            VertexBuffer.StoreSubsetData(_vertices, IntPtr.Zero);
-            VAO.None();
+            
+            VertexArrayObject.StoreBufferSubsetData(VertexBuffer, _vertices, IntPtr.Zero);
             RecalculateBounds();
         }
     }
@@ -113,20 +101,15 @@ public sealed class Mesh
         set
         {
             _uv = value ?? throw new ArgumentException("Invalid uv.");
-            
-            VertexArrayObject.Use();
 
             if (!_uvBufferIsDirty)
             {
-                UVBuffer.Use();
-                UVBuffer.StoreData(_uv);
-                VAO.None();
+                VertexArrayObject.StoreBufferData(UVBuffer, _uv);
                 _uvBufferIsDirty = true;
                 return;
             }
             
-            UVBuffer.StoreSubsetData(_uv, IntPtr.Zero);
-            VAO.None();
+            VertexArrayObject.StoreBufferSubsetData(UVBuffer, _uv, IntPtr.Zero);
         }
     }
 
@@ -139,20 +122,15 @@ public sealed class Mesh
         set
         {
             _normals = value ?? throw new ArgumentException("Invalid normals.");
-            
-            VertexArrayObject.Use();
 
             if (!_normalsBufferIsDirty)
             {
-                NormalBuffer.Use();
-                NormalBuffer.StoreData(_normals);
-                VAO.None();
+                VertexArrayObject.StoreBufferData(NormalBuffer, _normals);
                 _normalsBufferIsDirty = true;
                 return;
             }
             
-            NormalBuffer.StoreSubsetData(_normals, IntPtr.Zero);
-            VAO.None();
+            VertexArrayObject.StoreBufferSubsetData(NormalBuffer, _normals, IntPtr.Zero);
         }
     }
 
@@ -165,20 +143,15 @@ public sealed class Mesh
         set
         {
             _indices = value ?? throw new ArgumentException("Invalid indices.");
-            
-            VertexArrayObject.Use();
 
             if (!_indicesBufferIsDirty)
             {
-                ElementBuffer.Use();
-                ElementBuffer.StoreData(_indices);
-                VAO.None();
+                VertexArrayObject.StoreBufferData(ElementBuffer, _indices);
                 _indicesBufferIsDirty = true;
                 return;
             }
 
-            ElementBuffer.StoreSubsetData(_indices, IntPtr.Zero);
-            VAO.None();
+            VertexArrayObject.StoreBufferSubsetData(ElementBuffer, _indices, IntPtr.Zero);
         }
     }
 
@@ -260,22 +233,17 @@ public sealed class Mesh
         }
     }
 
-    public void Draw(CullFaceMode cullFaceMode = CullFaceMode.Back)
+    public void Draw()
     {
-        GL.BindVertexArray(VertexArrayObject.Id);
+        VertexArrayObject.Use();
         {
-            GL.EnableVertexAttribArray(_vertexArrayAttribLocation);
-            GL.EnableVertexAttribArray(_uvArrayAttribLocation);
-            GL.EnableVertexAttribArray(_normalArrayAttribLocation);
-            
-            GL.CullFace(cullFaceMode);
+            GL.EnableVertexAttribArrays(_vertexArrayAttribLocation, _uvArrayAttribLocation, _normalArrayAttribLocation);
+
             GL.DrawElements(DrawMode.Triangles, _indices.Length, PointerType.UnsignedInt, IntPtr.Zero);
                 
-            GL.DisableVertexAttribArray(_vertexArrayAttribLocation);
-            GL.DisableVertexAttribArray(_uvArrayAttribLocation);
-            GL.DisableVertexAttribArray(_normalArrayAttribLocation);
+            GL.DisableVertexAttribArrays(_vertexArrayAttribLocation, _uvArrayAttribLocation, _normalArrayAttribLocation);
         }
-        GL.BindVertexArray(0);
+        VAO.None();
     }
 
     ~Mesh()

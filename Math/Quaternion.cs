@@ -1,10 +1,11 @@
 ﻿using System.Collections;
-using System.Runtime.Serialization;
+using System.Runtime.InteropServices;
 
 namespace Tucan.Math;
 
 using Math = System.Math;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Quaternion : IReadOnlyList<float>, IEquatable<Quaternion>
 {
     public static readonly Quaternion Identity = new (0f, 0f, 0f, 1f);

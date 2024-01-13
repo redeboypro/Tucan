@@ -1,8 +1,10 @@
 ﻿using System.Collections;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace Tucan.Math;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
 {
     public static readonly Vector4 Zero = new(0);
@@ -143,9 +145,7 @@ public struct Vector4 : IReadOnlyList<float>, IEquatable<Vector4>
         var magnitude = value.Length;
 
         if (magnitude > MathF.KEpsilon)
-        {
             return value / magnitude;
-        }
 
         return Zero;
     }

@@ -320,9 +320,7 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
         var det = Vector3.Dot(c0, Vector3.Cross(c1, c2));
 
         if (det == 0)
-        {
             throw new InvalidOperationException("Matrix is not invertible. Determinant is zero.");
-        }
         
         var invDet = 1 / det;
         

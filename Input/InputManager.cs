@@ -67,22 +67,16 @@ public static class InputManager
     {
         _currentKeyStates = new SortedList<int, bool>();
         _lastKeyStates = new SortedList<int, bool>();
+        
         for (var i = 0; i < KeyCount; i++)
-        {
             _currentKeyStates[i] = _lastKeyStates[i] = false;
-        }
     }
 
     internal static void BeginFrame(ref IntPtr window)
     {
         for (var i = 0; i < KeyCount; i++)
-        {
-            if (_lastKeyStates != null)
-            {
-                _lastKeyStates[i] = (User32.GetAsyncKeyState(i) & 0x8000) != 0;
-            }
-        }
-        
+            if (_lastKeyStates != null) _lastKeyStates[i] = (User32.GetAsyncKeyState(i) & 0x8000) != 0;
+
         var cursorPoint = new Point();
         User32.GetCursorPos(ref cursorPoint);
         User32.ScreenToClient(window, ref cursorPoint);
@@ -97,9 +91,7 @@ public static class InputManager
         for (var i = 0; i < KeyCount; i++)
         {
             if (_lastKeyStates != null && _currentKeyStates != null)
-            {
                 _lastKeyStates[i] = _currentKeyStates[i];
-            }
         }
         
         _lastMousePositionX = MouseX;

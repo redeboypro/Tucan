@@ -103,10 +103,7 @@ public sealed class Display
     {
         while (User32.PeekMessage(out var message, _hWindow, 0u, 0u, _settings.PeekMessageOptions))
         {
-            if (message.Message is WindowMessage.Quit)
-            {
-                return true;
-            }
+            if (message.Message is WindowMessage.Quit) return true;
 
             User32.TranslateMessage(ref message);
             User32.DispatchMessage(ref message);
@@ -153,10 +150,7 @@ public sealed class Display
             _hRenderContext = IntPtr.Zero;
         }
 
-        if (_hDeviceContext == IntPtr.Zero)
-        {
-            return;
-        }
+        if (_hDeviceContext == IntPtr.Zero) return;
         
         User32.ReleaseDC(_hWindow, _hDeviceContext);
         _hDeviceContext = IntPtr.Zero;
@@ -186,18 +180,14 @@ public sealed class Display
 
         MGL.ChoosePixelFormat(hDeviceContext, pixelFormatAttribs, 0, 1, out var pixelFormat, out var numFormats);
         if (numFormats == 0)
-        {
             throw new Exception("Failed to set the modern OpenGL pixel format.");
-        }
 
         var pixelFormatDescriptor = new PixelFormatDescriptor();
         GDI32.DescribePixelFormat(hDeviceContext, pixelFormat, (uint) Marshal.SizeOf<PixelFormatDescriptor>(),
             ref pixelFormatDescriptor);
 
         if (GDI32.SetPixelFormat(hDeviceContext, pixelFormat, ref pixelFormatDescriptor) == 0)
-        {
             throw new Exception("Failed to set the modern OpenGL pixel format.");
-        }
 
         var glCoreAttribs = new[]
         {
@@ -209,14 +199,10 @@ public sealed class Display
 
         var glContext = MGL.CreateContextAttribs(hDeviceContext, IntPtr.Zero, glCoreAttribs);
         if (glContext == IntPtr.Zero)
-        {
             throw new Exception("Failed to activate modern OpenGL pixel format.");
-        }
 
         if (GL.MakeCurrent(hDeviceContext, glContext) == 0)
-        {
             throw new Exception("Failed to create modern OpenGL pixel format.");
-        }
 
         return glContext;
     }
@@ -240,9 +226,7 @@ public sealed class Display
         
         var registerResult = User32.RegisterClass(ref dummyWindowClass);
         if (registerResult == 0)
-        {
             throw new Exception("Failed to register dummy.");
-        }
         
         const int useDefault = unchecked((int) 0x80000000);
 
@@ -259,9 +243,7 @@ public sealed class Display
             IntPtr.Zero);
         
         if (dummyWindowInstance == IntPtr.Zero) 
-        {
             throw new Exception("Failed to create dummy.");
-        }
 
         var dummyDeviceContext = User32.GetDC(dummyWindowInstance);
 
@@ -270,14 +252,10 @@ public sealed class Display
             var dummyGLContext = GL.CreateContext(dummyDeviceContext);
 
             if (dummyDeviceContext == IntPtr.Zero)
-            {
                 throw new Exception("Failed to create dummy OpenGL context");
-            }
 
             if (GL.MakeCurrent(dummyDeviceContext, dummyGLContext) == 0)
-            {
                 throw new Exception("Failed to activate dummy OpenGL context");
-            }
             
             MGL.LoadFunctions();
 
@@ -285,11 +263,10 @@ public sealed class Display
             GL.DeleteContext(dummyGLContext);
             User32.ReleaseDC(dummyWindowInstance, dummyDeviceContext);
             User32.DestroyWindow(dummyWindowInstance);
+            return;
         }
-        else
-        {
-            throw new Exception("Failed to set dummy pixel format");
-        }
+        
+        throw new Exception("Failed to set dummy pixel format");
     }
     
     private ushort RegisterDisplayClass(
@@ -360,10 +337,7 @@ public sealed class Display
             return false;
         }
 
-        if (GDI32.SetPixelFormat(hDeviceContext, iPixelFormat, ref pixelFormat) != 0)
-        {
-            return true;
-        }
+        if (GDI32.SetPixelFormat(hDeviceContext, iPixelFormat, ref pixelFormat) != 0) return true;
         
         User32.ReleaseDC(hWindow, hDeviceContext);
         hDeviceContext = IntPtr.Zero;

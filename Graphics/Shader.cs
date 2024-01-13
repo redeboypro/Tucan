@@ -1,5 +1,4 @@
 ﻿using Tucan.External.OpenGL;
-using Tucan.External.OpenGL.ModernGL;
 using Tucan.Math;
 
 namespace Tucan.Graphics;
@@ -15,10 +14,7 @@ public sealed class Shader
         _vertexShaderId = LoadShaderFromSource(vertexShader, ShaderType.VertexShader);
         _fragmentShaderId = LoadShaderFromSource(fragmentShader, ShaderType.FragmentShader);
         
-        if (MGL.CreateProgram != null)
-        {
-            _programId = MGL.CreateProgram();
-        }
+        _programId = GL.CreateProgram();
 
         AttachAndValidate(attributes);
     }
@@ -140,9 +136,7 @@ public sealed class Shader
         GL.AttachShader(_programId, _fragmentShaderId);
 
         foreach (var attribute in attributes)
-        {
             BindAttribute(attribute.Location, attribute.Name);
-        }
 
         GL.LinkProgram(_programId);
         GL.ValidateProgram(_programId);
@@ -155,11 +149,10 @@ public sealed class Shader
         GL.ShaderSource(shaderId, source);
         GL.CompileShader(shaderId);
 
-        var log = MGL.GetShaderLog(shaderId);
+        var log = GL.GetShaderInfoLog(shaderId);
+        
         if (!string.IsNullOrEmpty(log)) 
-        { 
             throw new Exception(log);
-        }
 
         return shaderId;
 

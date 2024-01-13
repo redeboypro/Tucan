@@ -187,6 +187,12 @@ public static class GL
         MGL.GenVertexArray(1, out array);
     }
     
+    public static uint GenVertexArray()
+    {
+        GenVertexArray(out var array);
+        return array;
+    }
+    
     public static void DeleteVertexArrays(int n, params uint[] arrays)
     {
         MGL.DeleteVertexArrays(n, arrays);
@@ -210,6 +216,12 @@ public static class GL
     public static void GenBuffer(out uint buffer)
     {
         MGL.GenBuffer(1, out buffer);
+    }
+    
+    public static uint GenBuffer()
+    {
+        GenBuffer(out var buffer);
+        return buffer;
     }
     
     public static void DeleteBuffers(int n, params uint[] buffers)
@@ -237,14 +249,26 @@ public static class GL
         MGL.StoreBufferSubsetData(target, offset, data);
     }
 
-    public static void EnableVertexAttribArray(uint array)
+    public static void EnableVertexAttribArray(uint attributeLocation)
     {
-        MGL.EnableVertexAttribArray(array);
+        MGL.EnableVertexAttribArray(attributeLocation);
     }
     
-    public static void DisableVertexAttribArray(uint array)
+    public static void DisableVertexAttribArray(uint attributeLocation)
     {
-        MGL.DisableVertexAttribArray(array);
+        MGL.DisableVertexAttribArray(attributeLocation);
+    }
+    
+    public static void EnableVertexAttribArrays(params uint[] attributeLocations)
+    {
+        foreach (var location in attributeLocations)
+            EnableVertexAttribArray(location);
+    }
+    
+    public static void DisableVertexAttribArrays(params uint[] attributeLocations)
+    {
+        foreach (var location in attributeLocations)
+            DisableVertexAttribArray(location);
     }
 
     public static void VertexAttribPointer(uint index, int size, PointerType type, bool normalized, int stride, IntPtr pointer)
