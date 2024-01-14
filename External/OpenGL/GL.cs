@@ -1,6 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 using Tucan.External.OpenGL.ModernGL;
+using Tucan.External.OpenGL.BufferObjects;
+using Tucan.Math;
 
 namespace Tucan.External.OpenGL;
 
@@ -29,13 +31,19 @@ public static class GL
     public static extern void Viewport(int x, int y, int width, int height);
     
     [DllImport(GL32Dll, EntryPoint = "glDepthFunc")]
-    public static extern void DepthFunc(uint func);
+    public static extern void DepthFunc(DepthFunction func);
     
     [DllImport(GL32Dll, EntryPoint = "glClear")]
     public static extern void Clear(BufferBit mask);
     
     [DllImport(GL32Dll, EntryPoint = "glClearColor")]
     public static extern void ClearColor(float red, float green, float blue, float alpha);
+    
+    [DllImport(GL32Dll, EntryPoint = "glEnable")]
+    public static extern void Enable(EnableCap cap);
+    
+    [DllImport(GL32Dll, EntryPoint = "glDisable")]
+    public static extern void Disable(EnableCap cap);
     
     [Obsolete(DeprecatedFeatureUsageMessage)]
     [DllImport(GL32Dll, EntryPoint = "glLoadIdentity")]
@@ -48,7 +56,7 @@ public static class GL
     [Obsolete(DeprecatedFeatureUsageMessage)]
     [DllImport(GL32Dll, EntryPoint = "glScalef")]
     public static extern void Scale(float x, float y, float z);
-        
+
     [Obsolete(DeprecatedFeatureUsageMessage)]
     [DllImport(GL32Dll, EntryPoint = "glRotatef")]
     public static extern void Rotate(float angle, float x, float y, float z);
@@ -239,6 +247,11 @@ public static class GL
         MGL.BindBuffer(target, buffer);
     }
     
+    public static void BindBuffer(VBO vbo)
+    {
+        MGL.BindBuffer(vbo.BufferType, vbo.Id);
+    }
+    
     public static void StoreBufferData<T>(BufferType target, T[] data, BufferUsage bufferUsage) where T : struct
     {
         MGL.StoreBufferData(target, data, bufferUsage);
@@ -323,7 +336,12 @@ public static class GL
 
     public static void Uniform1(uint location, float v0)
     {
-        MGL.Uniform1(location, v0);
+        MGL.UniformF(location, v0);
+    }
+    
+    public static void Uniform1Boolean(uint location, int v0)
+    {
+        MGL.Uniform1Int(location, v0);
     }
     
     public static void Uniform1Int(uint location, int v0)
@@ -333,7 +351,7 @@ public static class GL
     
     public static void Uniform2(uint location, float v0, float v1)
     {
-        MGL.Uniform2( location, v0, v1);
+        MGL.Uniform2F( location, v0, v1);
     }
     
     public static void Uniform2Int(uint location, int v0, int v1)
@@ -343,7 +361,7 @@ public static class GL
     
     public static void Uniform3(uint location, float v0, float v1, float v2)
     {
-        MGL.Uniform3(location, v0, v1, v2);
+        MGL.Uniform3F(location, v0, v1, v2);
     }
     
     public static void Uniform3Int(uint location, int v0, int v1, int v2)
@@ -353,7 +371,7 @@ public static class GL
     
     public static void Uniform4(uint location, float v0, float v1, float v2, float v3)
     {
-        MGL.Uniform4(location, v0, v1, v2, v3);
+        MGL.Uniform4F(location, v0, v1, v2, v3);
     }
     
     public static void Uniform4Int(uint location, int v0, int v1, int v2, int v3)
@@ -366,7 +384,7 @@ public static class GL
         MGL.UniformMatrix4x4(location, count, transpose, value);
     }
     
-    public static int GetUniformLocation(uint program, string uniformName)
+    public static uint GetUniformLocation(uint program, string uniformName)
     {
         return MGL.GetUniformLocation(program, uniformName);
     }

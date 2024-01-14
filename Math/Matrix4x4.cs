@@ -190,7 +190,7 @@ public struct Matrix4x4 : IReadOnlyList<Vector4>, IEquatable<Matrix4x4>
     
     public static Matrix4x4 PerspectiveFieldOfView(float fov, float aspect, float near, float far)
     {
-        var tanHalfFov = MathF.Tan(fov / 2.0f);
+        var tanHalfFov = MathF.Tan(fov * 0.5f);
         var range = 1.0f / (near - far);
 
         var result = new Matrix4x4

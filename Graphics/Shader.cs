@@ -19,14 +19,9 @@ public sealed class Shader
         AttachAndValidate(attributes);
     }
 
-    public void Start()
+    public void UseProgram()
     {
         GL.UseProgram(_programId);
-    }
-
-    public void Stop()
-    {
-        GL.UseProgram(0);
     }
 
     public void Clear()
@@ -120,7 +115,7 @@ public sealed class Shader
         GL.Uniform1(uniformLocation, Convert.ToInt32(value));
     }
 
-    public int GetUniformLocation(string uniformName)
+    public uint GetUniformLocation(string uniformName)
     {
         return GL.GetUniformLocation(_programId, uniformName);
     }
@@ -155,6 +150,5 @@ public sealed class Shader
             throw new Exception(log);
 
         return shaderId;
-
     }
 }

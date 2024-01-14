@@ -57,19 +57,21 @@ internal static class MGL
     
     internal static MGLDelegates.BindAttribLocation? BindAttribLocation { get; private set; }
     
-    internal static MGLDelegates.Uniform1? Uniform1 { get; private set; }
+    internal static MGLDelegates.UniformF? UniformF { get; private set; }
     
-    internal static MGLDelegates.Uniform1Int? Uniform1Int { get; private set; }
+    internal static MGLDelegates.UniformBoolean? UniformBoolean { get; private set; }
     
-    internal static MGLDelegates.Uniform2? Uniform2 { get; private set; }
+    internal static MGLDelegates.UniformInt? Uniform1Int { get; private set; }
+    
+    internal static MGLDelegates.Uniform2F? Uniform2F { get; private set; }
     
     internal static MGLDelegates.Uniform2Int? Uniform2Int { get; private set; }
     
-    internal static MGLDelegates.Uniform3? Uniform3 { get; private set; }
+    internal static MGLDelegates.Uniform3F? Uniform3F { get; private set; }
     
     internal static MGLDelegates.Uniform3Int? Uniform3Int { get; private set; }
     
-    internal static MGLDelegates.Uniform4? Uniform4 { get; private set; }
+    internal static MGLDelegates.Uniform4F? Uniform4F { get; private set; }
     
     internal static MGLDelegates.Uniform4Int? Uniform4Int { get; private set; }
     
@@ -188,19 +190,21 @@ internal static class MGL
         
         BindAttribLocation = GetProcAddress<MGLDelegates.BindAttribLocation>("glBindAttribLocation");
         
-        Uniform1 = GetProcAddress<MGLDelegates.Uniform1>("glUniform1f");
+        UniformF = GetProcAddress<MGLDelegates.UniformF>("glUniform1f");
         
-        Uniform1Int = GetProcAddress<MGLDelegates.Uniform1Int>("glUniform1i");
+        UniformBoolean = GetProcAddress<MGLDelegates.UniformBoolean>("glUniform1i");
         
-        Uniform2 = GetProcAddress<MGLDelegates.Uniform2>("glUniform2f");
+        Uniform1Int = GetProcAddress<MGLDelegates.UniformInt>("glUniform1i");
+        
+        Uniform2F = GetProcAddress<MGLDelegates.Uniform2F>("glUniform2f");
         
         Uniform2Int = GetProcAddress<MGLDelegates.Uniform2Int>("glUniform2i");
         
-        Uniform3 = GetProcAddress<MGLDelegates.Uniform3>("glUniform3f");
+        Uniform3F = GetProcAddress<MGLDelegates.Uniform3F>("glUniform3f");
 
         Uniform3Int = GetProcAddress<MGLDelegates.Uniform3Int>("glUniform3i");
         
-        Uniform4 = GetProcAddress<MGLDelegates.Uniform4>("glUniform4f");
+        Uniform4F = GetProcAddress<MGLDelegates.Uniform4F>("glUniform4f");
         
         Uniform4Int = GetProcAddress<MGLDelegates.Uniform4Int>("glUniform4i");
         

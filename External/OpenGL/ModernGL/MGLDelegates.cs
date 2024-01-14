@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using Tucan.Math;
 
 namespace Tucan.External.OpenGL.ModernGL;
 
@@ -78,25 +79,28 @@ internal static class MGLDelegates
     internal delegate void BindAttribLocation(uint program, uint attribute, string variableName);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    internal delegate void Uniform1(uint location, float v0);
+    internal delegate void UniformF(uint location, float v0);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    internal delegate void Uniform1Int(uint location, int v0);
+    internal delegate void UniformBoolean(uint location, bool v0);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    internal delegate void Uniform2(uint location, float v0, float v1);
+    internal delegate void UniformInt(uint location, int v0);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void Uniform2F(uint location, float v0, float v1);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void Uniform2Int(uint location, int v0, int v1);
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    internal delegate void Uniform3(uint location, float v0, float v1, float v2);
+    internal delegate void Uniform3F(uint location, float v0, float v1, float v2);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void Uniform3Int(uint location, int v0, int v1, int v2);
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    internal delegate void Uniform4(uint location, float v0, float v1, float v2, float v3);
+    internal delegate void Uniform4F(uint location, float v0, float v1, float v2, float v3);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void Uniform4Int(uint location, int v0, int v1, int v2, int v3);
@@ -105,7 +109,7 @@ internal static class MGLDelegates
     internal unsafe delegate void UniformMatrix4x4(uint location, int count, bool transpose, float* value);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    internal delegate int GetUniformLocation(uint program, string uniformName);
+    internal delegate uint GetUniformLocation(uint program, string uniformName);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate uint CreateShader(ShaderType shaderType);

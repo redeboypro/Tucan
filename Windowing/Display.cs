@@ -10,12 +10,13 @@ namespace Tucan.Windowing;
 
 public delegate void WindowMessageCallbackDel(WindowMessage message);
 
-public sealed class Display
+public sealed class Display : IDisposable
 {
     private const float TicksToMilliseconds = 0.0000001f;
     
-    private readonly IntPtr _hInstance;
     private readonly DisplaySettings _settings;
+    
+    private IntPtr _hInstance;
     private IntPtr _hWindow;
     private IntPtr _hDeviceContext;
     private IntPtr _hRenderContext;
@@ -158,8 +159,7 @@ public sealed class Display
 
     ~Display()
     {
-        Destroy();
-        Release();
+        ReleaseUnmanagedResources();
     }
     
     private IntPtr InitializeGL(IntPtr hDeviceContext, int coreMajorVersion, int coreMinorVersion)
@@ -354,5 +354,25 @@ public sealed class Display
     {
         GL.Flush();
         GDI32.SwapBuffers(_hDeviceContext);
+    }
+
+    private void ReleaseUnmanagedResources()
+    {
+        Release();
+        Destroy();
+        _hInstance = IntPtr.Zero;
+        _hWindow = IntPtr.Zero;
+        _hDeviceContext = IntPtr.Zero;
+        _hRenderContext = IntPtr.Zero;
+        _frameTime = 0;
+        _frameRecorder = 0;
+        _deltaTime = 0;
+        _framesPerSecond = 0;
+    }
+
+    public void Dispose()
+    {
+        ReleaseUnmanagedResources();
+        GC.SuppressFinalize(this);
     }
 }
