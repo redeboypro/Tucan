@@ -13,6 +13,10 @@ internal static class MGL
 
     internal static MGLDelegates.CreateContextAttribs? CreateContextAttribs { get; private set; }
     
+    internal static MGLDelegates.DrawArraysInstanced? DrawArraysInstanced { get; private set; }
+    
+    internal static MGLDelegates.DrawElementsInstanced? DrawElementsInstanced { get; private set; }
+    
     internal static MGLDelegates.GenVertexArrays? GenVertexArrays { get; private set; }
     
     internal static MGLDelegates.DeleteVertexArrays? DeleteVertexArrays { get; private set; }
@@ -146,6 +150,10 @@ internal static class MGL
         
         CreateContextAttribs = GetProcAddress<MGLDelegates.CreateContextAttribs>("wglCreateContextAttribsARB");
 
+        DrawArraysInstanced = GetProcAddress<MGLDelegates.DrawArraysInstanced>("glDrawArraysInstanced");
+        
+        DrawElementsInstanced = GetProcAddress<MGLDelegates.DrawElementsInstanced>("glDrawElementsInstanced");
+        
         GenVertexArrays = GetProcAddress<MGLDelegates.GenVertexArrays>("glGenVertexArrays");
         
         DeleteVertexArrays = GetProcAddress<MGLDelegates.DeleteVertexArrays>("glDeleteVertexArrays");

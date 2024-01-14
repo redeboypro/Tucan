@@ -13,6 +13,12 @@ internal static class MGLDelegates
     internal delegate IntPtr CreateContextAttribs(IntPtr hDC, IntPtr hShareContext, int[] attribList);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void DrawArraysInstanced(DrawMode drawMode, int first, int count, int instanceCount);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void DrawElementsInstanced(DrawMode drawMode, int first, PointerType pointerType, IntPtr indices, int instanceCount);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void GenVertexArrays(int n, [Out] uint[] arrays);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]

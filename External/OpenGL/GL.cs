@@ -90,7 +90,17 @@ public static class GL
     
     [DllImport(GL32Dll, EntryPoint = "glDrawElements")]
     public static extern void DrawElements(DrawMode drawMode, int count, PointerType pointerType, IntPtr indicesPointer);
+    
+    public static void DrawArraysInstanced(DrawMode drawMode, int first, int count, int instanceCount)
+    {
+        MGL.DrawArraysInstanced(drawMode, first, count, instanceCount);
+    }
 
+    public static void DrawElements(DrawMode drawMode, int count, PointerType pointerType, IntPtr indicesPointer, int instanceCount)
+    {
+        MGL.DrawElementsInstanced(drawMode, count, pointerType, indicesPointer, instanceCount);
+    }
+    
     [DllImport(GL32Dll, EntryPoint = "glCullFace")]
     public static extern void CullFace(CullFaceMode cullFaceMode);
 
