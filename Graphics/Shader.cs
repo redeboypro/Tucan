@@ -3,11 +3,11 @@ using Tucan.Math;
 
 namespace Tucan.Graphics;
 
-public sealed class Shader
+public sealed class Shader : IDisposable
 {
-    private readonly uint _programId;
-    private readonly uint _vertexShaderId;
-    private readonly uint _fragmentShaderId;
+    private uint _programId;
+    private uint _vertexShaderId;
+    private uint _fragmentShaderId;
 
     public Shader(string vertexShader, string fragmentShader, params ShaderAttribute[] attributes)
     {
@@ -122,7 +122,7 @@ public sealed class Shader
 
     ~Shader()
     {
-        Clear();
+        Release();
     }
     
     private void AttachAndValidate(IEnumerable<ShaderAttribute> attributes)
@@ -150,5 +150,21 @@ public sealed class Shader
             throw new Exception(log);
 
         return shaderId;
+    }
+
+    private void Release()
+    {
+        if (_programId == 0) return;
+        
+        Clear();
+        _programId = 0;
+        _vertexShaderId = 0;
+        _fragmentShaderId = 0;
+    }
+
+    public void Dispose()
+    {
+        Release();
+        GC.SuppressFinalize(this);
     }
 }

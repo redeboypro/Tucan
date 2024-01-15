@@ -2,6 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <PackageId>Tucan</PackageId>
+        <PackageVersion>0.0.1</PackageVersion>
+        <Authors>RedeBoy</Authors>
+        <Description>Set of low-level OpenGL bindings for C# (.Net7.0)</Description>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

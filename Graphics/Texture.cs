@@ -3,15 +3,12 @@ using Tucan.Math;
 
 namespace Tucan.Graphics;
 
-public sealed class Texture
+public sealed class Texture : IDisposable
 {
-    public readonly int Width;
-    public readonly int Height;
-
     private readonly byte[] _pixelData;
-    private readonly uint _id;
 
     public Texture(string filePath,
+        TextureTarget target = TextureTarget.Texture2D,
         TextureFilterMode minFilter = TextureFilterMode.Linear, 
         TextureFilterMode magFilter = TextureFilterMode.Linear,
         TextureWrapMode wrapS = TextureWrapMode.Repeat,
@@ -42,7 +39,10 @@ public sealed class Texture
         fileStream.Seek(54, SeekOrigin.Begin);
         fileStream.Read(_pixelData, 0, imageDataSize);
 
-        Initialize(minFilter, magFilter, wrapS, wrapT, out _id);
+        Target = target;
+
+        Initialize(minFilter, magFilter, wrapS, wrapT, out var textureId);
+        Id = textureId;
     }
 
     public Texture(int width, int height,
@@ -57,16 +57,17 @@ public sealed class Texture
         var imageDataSize = Width * Height * 4;
         _pixelData = new byte[imageDataSize];
 
-        Initialize(minFilter, magFilter, wrapS, wrapT, out _id);
+        Initialize(minFilter, magFilter, wrapS, wrapT, out var textureId);
+        Id = textureId;
     }
 
-    public uint Id
-    {
-        get
-        {
-            return _id;
-        }
-    }
+    public uint Id { get; private set; }
+    
+    public int Width { get; private set; }
+    
+    public int Height { get; private set; }
+    
+    public TextureTarget Target { get; private set; }
     
     public void SetPixel(int x, int y, Color color)
     {
@@ -100,17 +101,21 @@ public sealed class Texture
 
     public void Apply()
     {
-        Use();
+        BindTexture();
         {
-            GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, PixelFormat.Bgra,
+            GL.TexSubImage2D(Target, 0, 0, 0, Width, Height, PixelFormat.Bgra,
                 PointerType.UnsignedByte, _pixelData);
         }
-        None();
     }
 
-    public void Use()
+    public void BindTexture()
     {
-        GL.BindTexture(TextureTarget.Texture2D, _id);
+        GL.BindTexture(Target, Id);
+    }
+
+    public void SaveAs(string filePath)
+    {
+        File.WriteAllBytes(filePath, _pixelData);
     }
 
     private void Initialize(
@@ -122,15 +127,15 @@ public sealed class Texture
     {
         GL.GenTexture(1, out id);
             
-        GL.BindTexture(TextureTarget.Texture2D, id);
+        BindTexture();
         {
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameter.MinFilter, minFilter);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameter.MagFilter, magFilter);
+            GL.TexParameter(Target, TextureParameter.MinFilter, minFilter);
+            GL.TexParameter(Target, TextureParameter.MagFilter, magFilter);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameter.WrapS, wrapS);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameter.WrapT, wrapT);
+            GL.TexParameter(Target, TextureParameter.WrapS, wrapS);
+            GL.TexParameter(Target, TextureParameter.WrapT, wrapT);
 
-            GL.TexImage2D(TextureTarget.Texture2D,
+            GL.TexImage2D(Target,
                 0,
                 InternalPixelFormat.Rgba32F,
                 Width, Height,
@@ -139,21 +144,30 @@ public sealed class Texture
                 PointerType.UnsignedByte,
                 _pixelData);
         }
-        GL.BindTexture(TextureTarget.Texture2D, 0);
-    }
-
-    public void Delete()
-    {
-        GL.DeleteTextures(1, _id);
+        GL.BindTexture(Target, 0);
     }
 
     ~Texture()
     {
-        Delete();
+        Release();
     }
-    
-    public static void None()
+
+    private void Release()
     {
-        GL.BindTexture(TextureTarget.Texture2D, 0);
+        if (Id != 0)
+        {
+            GL.DeleteTexture(Id);
+            Id = 0;
+        }
+
+        Width = 0;
+        Height = 0;
+        Target = 0;
+    }
+
+    public void Dispose()
+    {
+        Release();
+        GC.SuppressFinalize(this);
     }
 }

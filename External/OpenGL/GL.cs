@@ -96,7 +96,7 @@ public static class GL
         MGL.DrawArraysInstanced(drawMode, first, count, instanceCount);
     }
 
-    public static void DrawElements(DrawMode drawMode, int count, PointerType pointerType, IntPtr indicesPointer, int instanceCount)
+    public static void DrawElementsInstanced(DrawMode drawMode, int count, PointerType pointerType, IntPtr indicesPointer, int instanceCount)
     {
         MGL.DrawElementsInstanced(drawMode, count, pointerType, indicesPointer, instanceCount);
     }
@@ -118,6 +118,11 @@ public static class GL
 
     [DllImport(GL32Dll, EntryPoint = "glDeleteTextures")]
     public static extern void DeleteTexture(int n, [In] uint texture);
+    
+    public static  void DeleteTexture([In] uint texture)
+    {
+        DeleteTexture(1, texture);
+    }
     
     [DllImport(GL32Dll, EntryPoint = "glBindTexture")]
     public static extern void BindTexture(TextureTarget target, uint texture);
@@ -221,7 +226,7 @@ public static class GL
         DeleteVertexArrays(1, array);
     }
 
-    public static void BindVertexArray(uint array)
+    public static void BindVertexArray(uint array = 0)
     {
         MGL.BindVertexArray(array);
     }
@@ -252,7 +257,7 @@ public static class GL
         DeleteBuffers(1, buffer);
     }
 
-    public static void BindBuffer(BufferType target, uint buffer)
+    public static void BindBuffer(BufferType target, uint buffer = 0)
     {
         MGL.BindBuffer(target, buffer);
     }
