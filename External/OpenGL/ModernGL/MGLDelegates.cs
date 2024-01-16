@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
-using Tucan.Math;
 
 namespace Tucan.External.OpenGL.ModernGL;
 
@@ -11,6 +10,9 @@ internal static class MGLDelegates
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate IntPtr CreateContextAttribs(IntPtr hDC, IntPtr hShareContext, int[] attribList);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate IntPtr SwapIntervalEXT(int interval);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void GenerateMipmap(uint unit);

@@ -18,7 +18,7 @@ internal struct WindowClass
     internal IntPtr Icon;
     internal IntPtr Cursor;
     internal IntPtr Background;
-    internal string MenuName;
+    internal string? MenuName;
     internal string ClassName;
     internal IntPtr SmallIcon;
 }

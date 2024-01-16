@@ -13,6 +13,8 @@ internal static class MGL
 
     internal static MGLDelegates.CreateContextAttribs? CreateContextAttribs { get; private set; }
     
+    internal static MGLDelegates.SwapIntervalEXT? SwapIntervalEXT { get; private set; }
+    
     internal static MGLDelegates.GenerateMipmap? GenerateMipmap { get; private set; }
     
     internal static MGLDelegates.ActiveTexture? ActiveTexture { get; private set; }
@@ -153,6 +155,8 @@ internal static class MGL
         GenerateMipmap = GetProcAddress<MGLDelegates.GenerateMipmap>("glGenerateMipmap");
         
         ChoosePixelFormat = GetProcAddress<MGLDelegates.ChoosePixelFormat>("wglChoosePixelFormatARB");
+        
+        SwapIntervalEXT = GetProcAddress<MGLDelegates.SwapIntervalEXT>("wglSwapIntervalEXT");
         
         CreateContextAttribs = GetProcAddress<MGLDelegates.CreateContextAttribs>("wglCreateContextAttribsARB");
 

@@ -28,6 +28,8 @@ public sealed class Display : IDisposable
     private float _deltaTime;
     private int _framesPerSecond;
 
+    private bool _vSync;
+
     public Display(DisplaySettings settings, int coreMajorVersion, int coreMinorVersion)
     {
         _lastTime = DateTime.Now;
@@ -89,6 +91,19 @@ public sealed class Display : IDisposable
         get
         {
             return _framesPerSecond;
+        }
+    }
+
+    public bool VSync
+    {
+        get
+        {
+            return _vSync;
+        }
+        set
+        {
+            _vSync = value;
+            MGL.SwapIntervalEXT(_vSync ? 1 : 0);
         }
     }
 
@@ -285,9 +300,9 @@ public sealed class Display : IDisposable
             Instance = hInstance,
             Icon = IntPtr.Zero,
             Cursor = User32.LoadCursor(IntPtr.Zero, (int) cursorType),
-            MenuName = null!,
+            MenuName = null,
             ClassName = className,
-            MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(new WndProc(MessageCallbackPtr)),
+            MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(_messageCallbackHolder),
             SmallIcon = IntPtr.Zero
         };
 
@@ -368,6 +383,7 @@ public sealed class Display : IDisposable
         _frameRecorder = 0;
         _deltaTime = 0;
         _framesPerSecond = 0;
+        _vSync = false;
     }
 
     public void Dispose()
