@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Tucan.External;
 using Tucan.External.HiddenFeatures;
 using Tucan.External.OpenGL;
@@ -8,13 +7,12 @@ using Tucan.Input;
 
 namespace Tucan.Windowing;
 
-public delegate void WindowMessageCallbackDel(WindowMessage message);
-
 public sealed class Display : IDisposable
 {
     private const float TicksToMilliseconds = 0.0000001f;
     
     private readonly DisplaySettings _settings;
+    private readonly WndProc _messageCallbackHolder;
     
     private IntPtr _hInstance;
     private IntPtr _hWindow;
@@ -39,6 +37,8 @@ public sealed class Display : IDisposable
         
         _deltaTime = Single.Epsilon;
         _framesPerSecond = 0;
+
+        _messageCallbackHolder = MessageCallbackPtr;
         
         InputManager.InitializeKeyStates();
         
@@ -92,7 +92,7 @@ public sealed class Display : IDisposable
         }
     }
 
-    public WindowMessageCallbackDel? MessageCallback { get; set; }
+    public WindowMessageCallback? MessageCallback { get; set; }
 
     public void Show()
     {
@@ -219,7 +219,7 @@ public sealed class Display : IDisposable
             Icon = IntPtr.Zero,
             Cursor = User32.LoadCursor(IntPtr.Zero, 0),
             MenuName = null!,
-            MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(new WndProc(User32.DefaultMessageCallback)),
+            MessageCallbackPtr = Marshal.GetFunctionPointerForDelegate(_messageCallbackHolder),
             Instance = _hInstance,
             ClassName = "DummyClass"
         };
@@ -344,9 +344,9 @@ public sealed class Display : IDisposable
         return false;
     }
     
-    private IntPtr MessageCallbackPtr(IntPtr hWindow, uint message, IntPtr wParam, IntPtr lParam)
+    private IntPtr MessageCallbackPtr(IntPtr hWindow, WindowMessage message, IntPtr wParam, IntPtr lParam)
     {
-        MessageCallback?.Invoke((WindowMessage) message);
+        MessageCallback?.Invoke(message);
         return User32.DefWindowProc(hWindow, message, wParam, lParam);
     }
     

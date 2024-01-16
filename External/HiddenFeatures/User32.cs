@@ -44,7 +44,7 @@ internal static class User32
     public static extern bool UnregisterClass(string lpClassName, IntPtr hInstance);
 
     [DllImport(USR32DLL)]
-    internal static extern IntPtr DefWindowProc(IntPtr hWindow, uint uMsg, IntPtr wParam, IntPtr lParam);
+    internal static extern IntPtr DefWindowProc(IntPtr hWindow, WindowMessage uMsg, IntPtr wParam, IntPtr lParam);
 
     [DllImport(USR32DLL)]
     internal static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
