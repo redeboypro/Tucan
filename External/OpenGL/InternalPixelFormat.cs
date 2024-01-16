@@ -22,7 +22,7 @@ public enum InternalPixelFormat
     Rg8UI = 0x8238,
     Rg16UI = 0x823A,
     Rg32UI = 0x823C,
-    RgB8 = 0x8051,
+    Rgb8 = 0x8051,
     SRgB8 = 0x8C41,
     Rgb565 = 0x8D62,
     Rgb16F = 0x881B,

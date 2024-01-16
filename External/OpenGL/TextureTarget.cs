@@ -1,6 +1,6 @@
 ﻿namespace Tucan.External.OpenGL;
 
-public enum TextureTarget : uint
+public enum TextureTarget
 {
     Texture1D = 0x0DE0,
     Texture2D = 0x0DE1,

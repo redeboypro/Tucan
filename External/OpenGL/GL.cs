@@ -12,83 +12,86 @@ public static class GL
     
     internal const string GL32Dll = "opengl32.dll";
 
-    [DllImport(GL32Dll, EntryPoint = "wglGetProcAddress", SetLastError = true)]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.GetProcAddress, SetLastError = true)]
     public static extern IntPtr GetProcAddress([In, MarshalAs(UnmanagedType.LPStr)] string name);
     
-    [DllImport(GL32Dll, EntryPoint = "wglMakeCurrent", SetLastError = true)]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.MakeCurrent, SetLastError = true)]
     internal static extern int MakeCurrent(IntPtr hDeviceContext, IntPtr hRenderContext);
     
-    [DllImport(GL32Dll, EntryPoint = "wglCreateContext", SetLastError = true)]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.CreateContext, SetLastError = true)]
     internal static extern IntPtr CreateContext(IntPtr hDeviceContext);
     
-    [DllImport(GL32Dll, EntryPoint = "wglDeleteContext", SetLastError=true)]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DeleteContext, SetLastError=true)]
     internal static extern int DeleteContext(IntPtr hDeviceContext);
 
-    [DllImport(GL32Dll, EntryPoint = "glFlush")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Flush)]
     public static extern void Flush();
 
-    [DllImport(GL32Dll, EntryPoint = "glViewport")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Viewport)]
     public static extern void Viewport(int x, int y, int width, int height);
     
-    [DllImport(GL32Dll, EntryPoint = "glDepthFunc")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DepthFunc)]
     public static extern void DepthFunc(DepthFunction func);
     
-    [DllImport(GL32Dll, EntryPoint = "glClear")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Clear)]
     public static extern void Clear(BufferBit mask);
     
-    [DllImport(GL32Dll, EntryPoint = "glClearColor")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.ClearColor)]
     public static extern void ClearColor(float red, float green, float blue, float alpha);
     
-    [DllImport(GL32Dll, EntryPoint = "glEnable")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Enable)]
     public static extern void Enable(EnableCap cap);
     
-    [DllImport(GL32Dll, EntryPoint = "glDisable")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Enable)]
+    public static extern void Enable(TextureTarget textureTarget);
+    
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Disable)]
     public static extern void Disable(EnableCap cap);
     
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glLoadIdentity")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.LoadIdentity)]
     public static extern void LoadIdentity();
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glTranslatef")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Translate)]
     public static extern void Translate(float x, float y, float z);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glScalef")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Scale)]
     public static extern void Scale(float x, float y, float z);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glRotatef")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Rotate)]
     public static extern void Rotate(float angle, float x, float y, float z);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glBegin")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Begin)]
     public static extern void Begin(DrawMode mode);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glMatrixMode")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.MatrixMode)]
     public static extern void MatrixMode(MatrixMode mode);
     
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glColor3f")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Color3)]
     public static extern void Color3(float red, float green, float blue);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glColor4f")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Color4)]
     public static extern void Color4(float red, float green, float blue, float alpha);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glVertex3f")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Vertex3)]
     public static extern void Vertex3(float x, float y, float z);
 
     [Obsolete(DeprecatedFeatureUsageMessage)]
-    [DllImport(GL32Dll, EntryPoint = "glEnd")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.End)]
     public static extern void End();
     
-    [DllImport(GL32Dll, EntryPoint = "glDrawArrays")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DrawArrays)]
     public static extern void DrawArrays(DrawMode drawMode, int first, int count);
     
-    [DllImport(GL32Dll, EntryPoint = "glDrawElements")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DrawElements)]
     public static extern void DrawElements(DrawMode drawMode, int count, PointerType pointerType, IntPtr indicesPointer);
     
     public static void DrawArraysInstanced(DrawMode drawMode, int first, int count, int instanceCount)
@@ -101,22 +104,38 @@ public static class GL
         MGL.DrawElementsInstanced(drawMode, count, pointerType, indicesPointer, instanceCount);
     }
     
-    [DllImport(GL32Dll, EntryPoint = "glCullFace")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.CullFace)]
     public static extern void CullFace(CullFaceMode cullFaceMode);
 
-    [DllImport(GL32Dll, EntryPoint = "glHint")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Hint)]
     public static extern void Hint(HintTarget target, HintMode mode);
 
-    [DllImport(GL32Dll, EntryPoint = "glGenTextures")]
+    public static void GenerateMipmap(uint unit)
+    {
+        MGL.GenerateMipmap(33984 + unit);
+    }
+
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.GenTextures)]
     public static extern void GenTextures(int n, [Out] uint[] textures);
     
-    [DllImport(GL32Dll, EntryPoint = "glGenTextures")]
-    public static extern void GenTexture(int n, out uint texture);
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.GenTextures)]
+    private static extern void GenTexture(int n, out uint texture);
 
-    [DllImport(GL32Dll, EntryPoint = "glDeleteTextures")]
+    public static void GenTexture(out uint texture)
+    {
+        GenTexture(1, out texture);
+    }
+
+    public static uint GenTexture()
+    {
+        GenTexture(out var texture);
+        return texture;
+    }
+
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DeleteTextures)]
     public static extern void DeleteTextures(int n, [In] params uint[] textures);
 
-    [DllImport(GL32Dll, EntryPoint = "glDeleteTextures")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DeleteTextures)]
     public static extern void DeleteTexture(int n, [In] uint texture);
     
     public static  void DeleteTexture([In] uint texture)
@@ -124,16 +143,24 @@ public static class GL
         DeleteTexture(1, texture);
     }
     
-    [DllImport(GL32Dll, EntryPoint = "glBindTexture")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.BindTexture)]
     public static extern void BindTexture(TextureTarget target, uint texture);
+
+    public static void ActiveTexture(uint unit)
+    {
+        MGL.ActiveTexture(33984 + unit);
+    }
     
-    [DllImport(GL32Dll, EntryPoint = "glTexParameteri")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.TexParameteri)]
     public static extern void TexParameter(TextureTarget target, TextureParameter parameter, TextureFilterMode param);
     
-    [DllImport(GL32Dll, EntryPoint = "glTexParameteri")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.TexParameteri)]
     public static extern void TexParameter(TextureTarget target, TextureParameter parameter, TextureWrapMode param);
     
-    [DllImport(GL32Dll, EntryPoint = "glTexImage2D")]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.TexParameteri)]
+    public static extern void TexParameter(TextureTarget target, TextureParameter parameter, int param);
+    
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.TexImage2D)]
     public static extern void TexImage2D(
         TextureTarget target,
         int level,
@@ -165,8 +192,8 @@ public static class GL
             handle.Free();
         }
     }
-    
-    [DllImport(GL32Dll, EntryPoint = "glTexSubImage2D")]
+
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.TexSubImage2D)]
     public static extern void TexSubImage2D(
         TextureTarget target, 
         int level, 
@@ -196,8 +223,8 @@ public static class GL
             handle.Free();
         }
     }
-    
-    [DllImport(GL32Dll, EntryPoint = "glGetError")]
+
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.GetError)]
     public static extern int GetError();
 
     public static void GenVertexArrays(int n, uint[] arrays)

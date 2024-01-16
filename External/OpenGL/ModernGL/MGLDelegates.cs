@@ -13,6 +13,12 @@ internal static class MGLDelegates
     internal delegate IntPtr CreateContextAttribs(IntPtr hDC, IntPtr hShareContext, int[] attribList);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void GenerateMipmap(uint unit);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    internal delegate void ActiveTexture(uint unit);
+
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     internal delegate void DrawArraysInstanced(DrawMode drawMode, int first, int count, int instanceCount);
     
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]

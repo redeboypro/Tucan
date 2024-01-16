@@ -13,6 +13,10 @@ internal static class MGL
 
     internal static MGLDelegates.CreateContextAttribs? CreateContextAttribs { get; private set; }
     
+    internal static MGLDelegates.GenerateMipmap? GenerateMipmap { get; private set; }
+    
+    internal static MGLDelegates.ActiveTexture? ActiveTexture { get; private set; }
+
     internal static MGLDelegates.DrawArraysInstanced? DrawArraysInstanced { get; private set; }
     
     internal static MGLDelegates.DrawElementsInstanced? DrawElementsInstanced { get; private set; }
@@ -146,9 +150,13 @@ internal static class MGL
 
     internal static void LoadFunctions()
     {
+        GenerateMipmap = GetProcAddress<MGLDelegates.GenerateMipmap>("glGenerateMipmap");
+        
         ChoosePixelFormat = GetProcAddress<MGLDelegates.ChoosePixelFormat>("wglChoosePixelFormatARB");
         
         CreateContextAttribs = GetProcAddress<MGLDelegates.CreateContextAttribs>("wglCreateContextAttribsARB");
+
+        ActiveTexture = GetProcAddress<MGLDelegates.ActiveTexture>("glActiveTexture");
 
         DrawArraysInstanced = GetProcAddress<MGLDelegates.DrawArraysInstanced>("glDrawArraysInstanced");
         
