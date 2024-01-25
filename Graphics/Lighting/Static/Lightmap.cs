@@ -1,4 +1,5 @@
-﻿using Tucan.Graphics.Textures;
+﻿using Tucan.Graphics.Geometry;
+using Tucan.Graphics.Textures;
 using Tucan.Math;
 using MathF = Tucan.Math.MathF;
 
@@ -17,19 +18,16 @@ public sealed class Lightmap
     
     public Lightmap(
         Texture texture,
-        int width, int height,
-        Vector3 lightPosition,
         TriangularFace[] triangles,
-        Color shadowColor,
-        float bias = 0.0f)
+        LightmapSettings lightmapSettings)
     {
-        Width = width;
-        Height = height;
+        Width = lightmapSettings.Width;
+        Height = lightmapSettings.Height;
         _texture = texture;
-        _lightDirection = -Vector3.Normalize(lightPosition);
+        _lightDirection = -Vector3.Normalize(lightmapSettings.LightPosition);
         _triangles = triangles;
-        _bias = bias;
-        _shadowColor = shadowColor;
+        _bias = lightmapSettings.Bias;
+        _shadowColor = lightmapSettings.ShadowColor;
     }
 
     public void Apply()

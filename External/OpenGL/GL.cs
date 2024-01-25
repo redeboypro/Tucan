@@ -21,7 +21,7 @@ public static class GL
     [DllImport(GL32Dll, EntryPoint = GLEntryPoints.CreateContext, SetLastError = true)]
     internal static extern IntPtr CreateContext(IntPtr hDeviceContext);
     
-    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DeleteContext, SetLastError=true)]
+    [DllImport(GL32Dll, EntryPoint = GLEntryPoints.DeleteContext, SetLastError = true)]
     internal static extern int DeleteContext(IntPtr hDeviceContext);
 
     [DllImport(GL32Dll, EntryPoint = GLEntryPoints.Flush)]

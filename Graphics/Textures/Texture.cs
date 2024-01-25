@@ -143,6 +143,7 @@ public sealed class Texture : IDisposable
         InternalPixelFormat = 0;
         PixelFormat = 0;
         Channels = 0;
+        Unit = 0;
         HasMipmap = false;
     }
 

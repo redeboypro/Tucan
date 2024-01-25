@@ -1,7 +1,9 @@
-﻿using Tucan.Math;
+﻿using System.Runtime.InteropServices;
+using Tucan.Math;
 
-namespace Tucan.Graphics;
+namespace Tucan.Graphics.Geometry;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Vertex
 {
     public Vector3 Origin;

@@ -2,7 +2,7 @@
 using Tucan.Math;
 using MathF = Tucan.Math.MathF;
 
-namespace Tucan.Graphics;
+namespace Tucan.Graphics.Geometry;
 
 public sealed class TriangularFace : IReadOnlyList<Vertex>
 {

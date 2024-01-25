@@ -4,7 +4,7 @@ namespace Tucan.Graphics.Textures;
 
 public readonly struct TexParameter
 {
-    public static readonly IReadOnlyList<TexParameter> DefaultList = new[]
+    public static readonly IReadOnlyList<TexParameter> DefaultParameters = new[]
     {
         new TexParameter(TextureParameter.MinFilter, TextureFilterMode.LinearMipmapNearest),
         new TexParameter(TextureParameter.MagFilter, TextureFilterMode.Linear),
