@@ -1,4 +1,4 @@
-# Tucan.NET is a set of low-level OpenGL bindings for C# (.Net7.0)
+# Tucan.NET is a set of OpenGL bindings for C# (.Net7.0)
 
 ## Example of drawing a quad
 ```cs
